@@ -1,0 +1,4 @@
+AuthName "Member Only"
+AuthType Basic
+AuthUserFile /home/markfull/.htpasswds/.htpasswd
+require valid-user

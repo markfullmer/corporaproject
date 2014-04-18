@@ -1,0 +1,14 @@
+$ cat .gitignore
+
+# Can ignore specific files
+.DS_Store
+php_errorlog
+
+# Use wildcards as well
+*~
+*.sql
+*.log
+
+# Can also ignore all directories and files in a directory.
+variables/
+tmp/**/* 
