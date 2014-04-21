@@ -54,7 +54,7 @@ if ($_REQUEST['submit'] == 'Update' && (in_array($type, array('language','genre'
 	if ($type == 'language') { 
 		update_language($id,$frequent_word_value,$sentences_constant,$words_constant,$db);
 		update_frequent_words($id,$db);
-		header('Location: ./edit.php?type='.$type.'&id=all&message=2');
+		header('Location: ./edit.php?type='.$type.'&id='.$id.'&message=2');
 		exit();
 	}
 	else { 
@@ -185,8 +185,8 @@ if ($type == 'word') {
 	exit();
 }
 else { 
-	 header('Location: ./index.php'); 
+//	 header('Location: ./index.php'); 
 }
 }
-//echo microtime(true) - $now; 
+echo microtime(true) - $now; 
 ?>

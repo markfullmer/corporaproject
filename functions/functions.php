@@ -640,11 +640,20 @@ function process_words($word_array_mod,$sentence_array,$language,$db) {
 	$updated = count($existing_words);
 	// echo $new.' new words were added. '.$updated.' words were updated';
 }
-function progressbar($current, $total) {
+function progressbar($current, $total,$now) {
     echo "<div";
-    if ($current == $total) { echo ' style="display:none;" '; }
-    echo "><span style='position:absolute;z-index:1;background:#FFF;'>" . round($current / $total * 100) . "% </span>";
-    echo '<progress value="'.$current.'" max="'.$total.'"" style="position:absolute;background:#FFF;"></progress></div>';
+
+    echo "><span style='position:absolute;z-index:1;background:#FFF;'>" . round($current / $total * 100) . "% Processed ".$current." out of ".$total."</span>";
+    echo '<progress value="'.$current.'" max="'.$total.'"" style="position:absolute;margin-top:20px;background:#FFF;"></progress></div>';
+    	echo '<div style="position:absolute;margin-top:50px;z-index:1;background:#FFF;">
+    	<a href="./edit.php?type=language&id=all&message=2">Return to language page</a>';
+    	echo '<br />Memory usage: ';
+    	var_dump(memory_get_usage());
+    	echo '<br />Peak usage: ';
+		var_dump(memory_get_peak_usage());
+		echo '<br />Time elapsed: ';
+		echo microtime(true) - $now;
+	    echo '</div>'; 
     doflush();
 }
 
@@ -1088,7 +1097,6 @@ function update_language($id,$frequent_word_value,$sentences_constant,$words_con
 	$sql = 'UPDATE language SET frequent_word_value = :frequent_word_value, sentences_constant = :sentences_constant, words_constant = :words_constant WHERE id = :id';
 	$q = $db->prepare($sql);
 	$q->execute(array(':frequent_word_value' => $frequent_word_value,':sentences_constant' => $sentences_constant,':words_constant' => $words_constant,':id' => $id));
-	update_readability_bulk($id,$db);
 }
 function update_readability_bulk($language,$db) {
 	$frequent_words = select_single_value('language',$language,'frequent_words',$db);
@@ -1098,32 +1106,48 @@ function update_readability_bulk($language,$db) {
 		$frequent_word_array = get_frequent_words($language,$db);
 		$words_constant = select_single_value('language',$language,'words_constant',$db);
 		$sentences_constant = select_single_value('language',$language,'sentences_constant',$db);
-		$sql = "SELECT id,word_list,words_per_sentence FROM text WHERE language =".$language;
-   		$statement = $db->prepare($sql);
-		$statement->execute(array());
-    	while ($row = $statement->fetch()) { 
-    		$id = $row['id'];
-    		$word_array_list = unserialize($row['word_list']);
-    		$words_per_sentence = $row['words_per_sentence']; 
-			foreach ($word_array_list as $key => $value) {
-				if (in_array($key,$frequent_word_array)) { $frequent = $frequent+$value; }
-				$total = $total+$value;
-			}
-			$percent_frequent_words = $frequent/$total*100;
-			$readability[$id] = ($sentences_constant*$words_per_sentence)+($words_constant*(100-$percent_frequent_words)) +0.839; 
-    	}
-    	$ids = array_keys($readability);
-    	$id_list = implode("','",$ids);
-		$comma_separated = "'".$id_list."'";
-		$sql = "UPDATE text SET readability = CASE id ";
-		foreach ($readability as $key => $score ) {
-    		$sql .= sprintf("WHEN '%s' THEN %s ", $key, $score);
-    		if ($key == end($ids)){
-      			$sql .= "END WHERE language = ".$language." AND id IN (".$comma_separated.")";
+		$text_count = count_values('text','language',$language,$db);
+		$limit = '25';
+		$offset = '0';
+		$done = false;
+		while (!$done) {
+			if ($offset > $text_count) { $progress = $text_count; }
+			else { $progress = $offset; }
+			$sql = 'UPDATE progress SET text_updater = :offset WHERE id = :id';
+			$q = $db->prepare($sql);
+			$q->execute(array(':offset' => $progress,':id' => '1')); 
+			$sql = 'SELECT id,word_list,words_per_sentence FROM text WHERE language ='.$language.' LIMIT '.$limit.' OFFSET '.$offset;
+   			$statement = $db->prepare($sql);
+			$statement->execute(array());
+			// prepare the update
+    		while ($row = $statement->fetch()) { 
+    			$id = $row['id'];
+    			$word_array_list = unserialize($row['word_list']);
+    			$words_per_sentence = $row['words_per_sentence']; 
+				foreach ($word_array_list as $key => $value) {
+					if (in_array($key,$frequent_word_array)) { $frequent = $frequent+$value; }
+					$total = $total+$value;
+				}
+				$percent_frequent_words = $frequent/$total*100;
+				$readability[$id] = ($sentences_constant*$words_per_sentence)+($words_constant*(100-$percent_frequent_words)) +0.839; 
+	    	}
+	    	// perform the update
+	    	$ids = array_keys($readability);
+    		$id_list = implode("','",$ids);
+			$comma_separated = "'".$id_list."'";
+			$sql = "UPDATE text SET readability = CASE id ";
+			foreach ($readability as $key => $score ) {
+    			$sql .= sprintf("WHEN '%s' THEN %s ", $key, $score);
+    			if ($key == end($ids)){
+      				$sql .= "END WHERE language = ".$language." AND id IN (".$comma_separated.")";
+  				}
   			}
-  		}
-      	$q = $db->prepare($sql);
-		$q->execute();
+      		$q = $db->prepare($sql);
+			$q->execute();
+			// move to the next batch
+	    	if ($offset > $text_count) { $done = true; }
+	    	$offset = $offset+$limit;
+	    }
     }
 }
 

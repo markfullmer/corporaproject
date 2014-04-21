@@ -29,7 +29,7 @@ if ($type == 'text' && (!in_array($id,array('add','all')))) {
 <?php if (isset($_REQUEST['message'])) { 
     $messageid = $_REQUEST['message'];
     $message = get_name($messageid,'messages',$db); 
-    echo '<div class="message">'.$message[$messageid]['name'].'</div>';
+    echo '<div class="message" id="message">'.$message[$messageid]['name'].'</div>';
     } 
 ?>
 <article>
@@ -40,7 +40,7 @@ if ($type == 'language' && $id == 'all') { echo '<div class="message">If you del
 <?php         
 if ($id == 'all') {
   if (in_array($type,array('user','text','article','language','pos','genre','domain'))) { 
-  echo '<p><a href="edit.php?type='.$type.'&id=add">Add a new '.$type.'</a><p>';   
+  echo '<p><a href="edit.php?type='.$type.'&id=add">+ Add a new '.$type.'</a><p>';   
   echo '<h2>Current '.$type.' list</h2>';
   $data = get_name($id,$type,$db);
   if (empty($data)) { die('There are no '.$type.'s yet.'); }
@@ -55,7 +55,7 @@ if ($id == 'all') {
       }
       else {
         echo '<a href="edit.php?type='.$type.'&id='.$key.'">'.$value['name'].'</a>';
-        if ($type != 'article' && !in_array($id,array(1,2,3))) { echo '(<a href="save.php?type='.$type.'&id='.$key.'&submit=delete">delete</a>)'; }
+        if ($type != 'article' && !in_array($id,array(1,2,3))) { echo ' (<a href="save.php?type='.$type.'&id='.$key.'&submit=delete">delete</a>)'; }
         echo '<br />';
       }
     }
@@ -192,13 +192,19 @@ if ($type == 'user') {
   }
   echo '</td></tr></table></div>';
 }
-
 echo '<input type="hidden" name="type" value="'.$type.'" />';
 echo '<input type="hidden" name="id" value="'.$id.'" />';
 echo '<input type="submit" name="submit" value="'.$status.'" /></form>';
 
 if ($type == 'language' && $status == 'Update') { 
-  echo 'Texts will be rescanned and readability scores recalculated by clicking "Update"';
+  $texts = count_values('text','language',$id,$db);
+  $url = 'includes/task.php?language='.$id;
+  echo '
+<button value="Submit" onclick="runTask(\''.$url.'\'),checker('.$texts.')">Recalculate readability for all texts</button>
+<progress id="progressBar" value="0" max="'.$texts.'" class="hide"></progress>
+<span id="progress" class="hide"><span id="finished">0</span> out of '.$texts.'</span>';
+echo '<div id="result"></div>';
+
   if (isset($data['frequent_words'])) {
     echo '<div class="blurb-box"><h2>Frequent words in '.$data['name'].':</h2>';
     $words = unserialize($data['frequent_words']); 
