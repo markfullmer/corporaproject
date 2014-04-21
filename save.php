@@ -185,8 +185,8 @@ if ($type == 'word') {
 	exit();
 }
 else { 
-//	 header('Location: ./index.php'); 
+	 header('Location: ./index.php'); 
 }
 }
-echo microtime(true) - $now; 
+//echo microtime(true) - $now; 
 ?>
