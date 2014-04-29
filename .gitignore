@@ -3,6 +3,7 @@ $ cat .gitignore
 # Can ignore specific files
 .DS_Store
 php_errorlog
+.sass-cache
 
 # Use wildcards as well
 *~
