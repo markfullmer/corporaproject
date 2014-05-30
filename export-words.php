@@ -10,7 +10,7 @@ $words = array();
 $flag = false;
 echo ("Language \t Word \t Count \t Part(s) of Speech \t Meaning \tSample Sentence \r\n");
 
-$result = select_frequent_words($_POST['language'],0,100000,'count',$_POST['loan'],$_POST['blacklist'],$db);
+$result = select_frequent_words($_POST['language'],0,40000,'count',$_POST['loan'],$_POST['blacklist'],$db);
 
 $languages = get_name('all','language',$db);
 $pos = get_name('all','pos',$db);
