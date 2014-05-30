@@ -782,7 +782,8 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	if ($english_loan == 'no') {
 		$eng_filter = "AND englishword <> '1'";
 	}
-	else { $eng_filter = "AND englishword = '1'";}
+	else { $eng_filter = ''; }
+	//else { $eng_filter = "AND englishword = '1'";}
 	if ($blacklist == 'no') {
 		$black_filter = "AND blacklist <> '1'";
 	}
@@ -1056,6 +1057,7 @@ function sentence_count($input) {
 	return $count;
 }
 function statistical_analysis_computations($result,$db) {
+	if (isset($result)) {
 	$total = count($result);
 	$output = 'Total words analyzed:'. $total;
 	foreach ($result as $key => $value) {
@@ -1105,6 +1107,8 @@ function statistical_analysis_computations($result,$db) {
 		$output .= '</tbody></table>';
 	}
 	else { $output .= '<br />No words are tagged with parts of speech in this language'; }
+	}
+	else { $output = '<br />No words were found in this language'; }
 	return $output;
 }
 function statistical_analysis_controller($db) {
@@ -1124,9 +1128,8 @@ function statistical_analysis_form($db) {
 	$output .= '<form id="statistical_analysis" method="post" action="./index.php?type=statistical&id=results">';
 	$output .= 'Language to analyze: '.better_term_dropdown('language','all',$db);
 	$output .= '<br />Number of words: <input type="text" value="" name="number" placeholder="leave blank for all">';
-	$output .= '<span class="subtext">Will provide statistics on the top X most frequent words, where X is the value given</span>';	
+	$output .= '<span class="subtext">Will provide statistics on the top X most frequent words, where X is the value given. Maximum 10,000.</span>';	
 	$output .= '<br />Include English loan words <input type="checkbox" name="loan" value="1" />';
-	$output .= '<br />Include blacklisted words <input type="checkbox" name="blacklist" value="1" />';	
 	$output .= '<br /><input type="submit" name="submit" value="Run Analysis"></form>';
 	return $output;
 }
@@ -1134,10 +1137,10 @@ function statistical_analysis_results($db) {
 	$output ='The form was not submitted correctly';
 	if (isset($_POST['submit'])) {
 		if ($_POST['submit'] == 'Run Analysis') {
-			if (empty($_POST['number'])) { $_POST['number'] = 100000; }
-			if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 0; }
-			if (empty($_POST['loan'])) { $_POST['loan'] = 0; }			
-			$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],$_POST['blacklist'],$db);
+			if (empty($_POST['number'])) { $_POST['number'] = 10000; }
+			if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 'no'; }
+			if (empty($_POST['loan'])) { $_POST['loan'] = 'no'; }			
+			$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
 			$output = 'Words analyzed: '.count($result).'<br />';
 			$output = statistical_analysis_computations($result,$db);
 		}
