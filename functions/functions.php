@@ -803,7 +803,7 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 		$black_filter = "AND blacklist <> '1'";
 	}
 	else { $black_filter = "AND blacklist = '1'";}
-	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
+	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") AND count > 1 ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
 	$statement->execute(array());
     while ($row = $statement->fetch()) {
