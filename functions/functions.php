@@ -1,5 +1,17 @@
 <?php
-
+function aasort (&$array, $key) {
+    $sorter=array();
+    $ret=array();
+    reset($array);
+    foreach ($array as $ii => $va) {
+        $sorter[$ii]=$va[$key];
+    }
+    asort($sorter);
+    foreach ($sorter as $ii => $va) {
+        $ret[$ii]=$array[$ii];
+    }
+    $array=$ret;
+}
 function br2nl($text) {
 	$breaks = array("<br />","<br>","<br/>");  
     return str_ireplace($breaks, "\r\n", $text);
@@ -1078,15 +1090,35 @@ function statistical_analysis_computations($result,$db) {
 
 	}
 	if (isset($major)) {
+		foreach ($major as $name => $values) {
+			$major_counts[$name] = count($values);
+		}
+		arsort($major_counts);
 		$inc = 0;
 		$output .= '<h2>Major Parts of Speech</h2>';
 		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
-		foreach ($major as $name => $values) {
-			$inc = $inc+count($values);
-			$output .= '<tr><td>'.$name.'</td><td>'.count($values).'</td><td>'.(count($values)/$total*100).'</td></tr>';
+		foreach ($major_counts as $name => $count) {
+			$inc = $inc+$count;
+			$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.($count/$total*100).'</td></tr>';
 		}
 		$output .= '<tr><td><b>Total</b></td><td>'.$inc.'</td><td>'.($inc/$total*100).'</td></tr>';
 		$output .= '</tbody></table><br />';
+	}
+	if (isset($pos)) { 
+		foreach ($pos as $name => $values) {
+			$pos_count[$name] = count($values);
+		}
+		ksort($pos_count);
+		$output .= '<br /><h2>All Parts of Speech</h2>';
+		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
+		foreach ($pos_count as $name => $count) {
+			if ($name != '') {
+				$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.($count/$total*100).'</td></tr>';
+			}
+		}
+		$output .= '</tbody></table>';
+	}
+	if (isset($major)) {
 		foreach ($major as $name => $values) {
 			$output .= '<h3>'.$name.'</h3>';
 			if (isset($values)) {
@@ -1095,16 +1127,6 @@ function statistical_analysis_computations($result,$db) {
 				}
 			}
 		}
-	}
-	if (isset($pos)) { 
-		$output .= '<br /><h2>All Parts of Speech</h2>';
-		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
-		foreach ($pos as $name => $values) {
-			if ($name != '') {
-				$output .= '<tr><td>'.$name.'</td><td>'.count($values).'</td><td>'.(count($values)/$total*100).'</td></tr>';
-			}
-		}
-		$output .= '</tbody></table>';
 	}
 	else { $output .= '<br />No words are tagged with parts of speech in this language'; }
 	}
