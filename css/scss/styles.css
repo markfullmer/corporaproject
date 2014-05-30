@@ -217,6 +217,9 @@ i {
   text-align: left;
   padding: 5px; }
 
+#search-next {
+  float: right; }
+
 .default tr:last-child td {
   border-width: 0px 1px 0px 0px; }
 

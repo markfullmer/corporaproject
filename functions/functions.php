@@ -16,6 +16,11 @@ function br2nl($text) {
 	$breaks = array("<br />","<br>","<br/>");  
     return str_ireplace($breaks, "\r\n", $text);
 }
+function cleanData(&$str) {
+    $str = preg_replace("/\t/", "\\t", $str);
+    $str = preg_replace("/\r?\n/", "\\n", $str);
+    if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"';
+}
 function clean_sentence($raw,$genre,$db) {
 	$raw = nl2br($raw);
 	$find = array('/\r/','/\n/','/\t/');
@@ -282,17 +287,16 @@ function import_bulk_words($limit,$offset,$db) {
 		}	
 }
 function import_bulk_text($limit,$offset,$db) {
-        $total = 100;
-        $current = 0;
-        // TEXT CLEANER
-  		$find[] = "\\";  // left side double smart quote
-  		$replace[] = '';
-
-        $sql = "SELECT name,content,author,genre,language FROM text_importer LIMIT ".$limit." OFFSET ".$offset;
-        $statement = $db->prepare($sql);
-		$statement->execute(array());
-		if (isset($statement)) {
-    		while ($row = $statement->fetch()) {
+    $total = 100;
+    $current = 0;
+    // TEXT CLEANER
+  	$find[] = "\\";  // left side double smart quote
+  	$replace[] = '';
+    $sql = "SELECT name,content,author,genre,language FROM text_importer LIMIT ".$limit." OFFSET ".$offset;
+    $statement = $db->prepare($sql);
+	$statement->execute(array());
+	if (isset($statement)) {
+    	while ($row = $statement->fetch()) {
 			$id = 0;
 			$type = 'text';
 			$name = $row['name'];
@@ -665,7 +669,6 @@ function process_words($word_array_mod,$sentence_array,$language,$db) {
 }
 function progressbar($current, $total,$now) {
     echo "<div";
-
     echo "><span style='position:absolute;z-index:1;background:#FFF;'>" . round($current / $total * 100) . "% Processed ".$current." out of ".$total."</span>";
     echo '<progress value="'.$current.'" max="'.$total.'"" style="position:absolute;margin-top:20px;background:#FFF;"></progress></div>';
     	echo '<div style="position:absolute;margin-top:50px;z-index:1;background:#FFF;">
@@ -1338,6 +1341,94 @@ function word_array($input) {
 	}
 	natcasesort($c);
 	$output = array_count_values($c);
+	return $output;
+}
+function word_list_controller($db) {
+	if (isset($_REQUEST['language'])) { $language = $_REQUEST['language']; }
+	else { $language = 'all'; }
+	if (isset($_REQUEST['next'])) { $offset = $_REQUEST['offset']+1000; }
+	else { $offset = 0; }
+	if (isset($_REQUEST['loan'])) { $loan = 1; }
+	else { $loan = 'no'; }
+	if (isset($_REQUEST['blacklist'])) { $blacklist = 1; }
+	else { $blacklist = 'no'; }
+	$output = word_list_form($db,$language,$offset,$loan,$blacklist);
+	$output .= word_list_results($db,$language,$offset,$loan,$blacklist);
+	return $output;
+}
+function word_list_results($db,$language,$offset,$loan,$blacklist) {
+	$results = select_frequent_words($language,$offset,1000,'count',$loan,$blacklist,$db);
+	if (isset($results)) {
+		$languages = get_name('all','language',$db);
+		$pos = get_name('all','pos',$db);
+		$permissions = '';
+		$inc = $offset+1;
+		$access[0] = false;
+		foreach ($languages as $key => $val) {
+			$access[$key] = check_language_permission($key,$db);
+		}
+		$output = '<table class="default" style="width:100%;"><tr><td>Word</td><td>Definition</td><td>Part of Speech</td><td>Sample Usage</td><td>Count</td></tr>';
+        foreach ($results as $key =>$value) { 
+        	$lang = $value['language'];
+            $count = number_format($value['count']);
+            $standard_spelling = $value['standard_spelling'];
+            $pos_array = array();
+            if ($value['pos'] != 0) { 
+            	$one = $value['pos'];
+            	$pos_array[] = $pos[$one]['name']; 
+            }
+            if ($value['postwo'] != 0) { 
+            	$two = $value['postwo'];
+            	$pos_array[] = $pos[$two]['name']; 
+            }
+            $parts_of_speech = join(', ',$pos_array);
+            if ($value['definition'] != '') { $meaning = $value['definition']; }
+            else { $meaning = $value['english_equivalent']; }
+            if (isset($languages[$lang]['name'])) { 
+            	$lang_display = $languages[$lang]['name']; 
+            }
+            else { $lang_display = 'Uncategorized'; }
+            $find = ' '.$value['name'].' ';
+            $replace = ' <span class="highlight">'.$value['name'].'</span> ';
+            $sample_sentence = str_replace($find,$replace,$value['sample_sentence']);
+            $sample_sentence = $sample_sentence;
+            if ($access[$lang]) { 
+            $word = '<a href="edit.php?type=word&id='.$value['id'].'">'.$value['name'].'</a>'; }
+            else { $word = $value['name'];}
+            // generate the actual table
+            $output .= '<tr><td>'.$inc.'. '.$word;
+            if ($standard_spelling != '' ) { $output .= ' <i>('.$standard_spelling.')</i> '; }
+            if ($language == 'all') { $output .= ' ('.$lang_display.') '; }
+            $output .= '</td><td>'.$meaning.'</td><td>'.$parts_of_speech.'</td><td>'.$sample_sentence.'</td><td>'.$count.'</td></tr>'; 
+            $inc++;
+        }
+        $output .= '</table>';
+    }
+	return $output;
+}
+function word_list_form($db,$language,$offset,$loan,$blacklist) {
+	$output = '<form action="index.php?type=word" method="post">';
+    $output .= better_term_dropdown('language',$language,$db);
+    $output .= '<input type="hidden" name="id" value="all" />';
+    $output .= '<input type="hidden" name="offset" value="'.$offset.'" />';
+    $output .= '&nbsp;<input type="checkbox" name="loan" value="1" ';
+    if ($loan == 1) { $output .= 'checked="checked"'; }
+    $output .= ' />Include English loan words';
+    $output .= '&nbsp;&nbsp;&nbsp;<input type="checkbox" name="blacklist" value="1" ';
+    if ($blacklist == 1) { $output .= 'checked="checked"'; }
+    $output .= ' /> Include blacklisted words';
+    $output .= '<br /><input type="submit" value="Filter" name="submit" />';
+    $output .= '<input id="search-next" type="submit" value="Next 1000 results" name="next" />'	;
+    $output .= '</form>';
+    if (isset($_SESSION['uid'])) {
+	    $output .= '<form action="export-words.php" method="post">';
+	    $output .= '<input type="hidden" name="language" value="'.$language.'" />';
+    	$output .= '<input type="hidden" name="id" value="all" />';
+    	$output .= '<input type="hidden" name="loan" value="'.$loan.'" />';
+    	$output .= '<input type="hidden" name="blacklist" value="'.$blacklist.'" />';
+		$output .= '<input type="submit" value="Export records to spreadsheet" name="export" />';
+    	$output .= '</form>';
+    }	
 	return $output;
 }
 ?>
