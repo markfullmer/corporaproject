@@ -4,6 +4,7 @@
     }
     if ($type == 'readability') { $data['name'] = 'Readability Instrument'; $id='all';}
     if ($type == 'semantic' && $id == 'all') { $data['name'] = 'Semantic Domains'; }
+    if ($type == 'statistical') { $data['name'] = 'Statistical Analysis'; }
     $name = strtolower($data['name']);
     $name = ucwords($name);
     if ($type == 'text' && $id != 'all') {
@@ -13,8 +14,8 @@
         }
     }
     if ($type == 'article' && 'id' != 'all') { 
-            if (check_permissions_single('7',$db)) { $name .= ' (<a href="./edit.php?type=article&id='.$id.'">edit</a>)'; }
-        }
+        if (check_permissions_single('7',$db)) { $name .= ' (<a href="./edit.php?type=article&id='.$id.'">edit</a>)'; }
+    }
 
 echo '<section';
 if ($id == 'all') { echo ' class="all"'; }
@@ -34,6 +35,9 @@ if (isset($_REQUEST['message'])) {
         <?php if (isset($data['genre'])) { '<p>Genre: '.select_single_value('genre',$data['genre'],'name',$db).'<p>'; } ?>
         </header>
 <?php
+if ($type == 'statistical') {
+        echo statistical_analysis_controller($db);
+    }
 if ($id == 'all') {
     if ($type == 'readability') {
         readability_form($db);
@@ -284,18 +288,18 @@ $content = $data['content'];
         echo nl2br($content); 
     }
 }
-    ?>
+?>
     </article> 
 </section>
 <?php 
 if ($id != 'all' && $type != 'semantic') {
-echo '<aside>';
-if (isset($data['sentence_count'])) { echo '<div class="statistics"><h2>Text Statistics</h2><p>Sentences: '.$data['sentence_count'].'<p>'; }
-if (isset($data['word_count'])) { echo '<p>Words: '.$data['word_count'].'<p>'; } 
-if (isset($data['words_per_sentence'])) { echo '<p>Words per sentence: '.$data['words_per_sentence'].'</p><p class="subtext">Shorter sentences indicate simpler reading level. Very simple texts have less than 10 words per sentence. Difficult texts can have more than 20.</p>'; } 
-if (isset($data['readability'])) { echo '<p>Grade Level: '.$data['readability'].'</p><p class="subtext">Gives approximate grade level, based on the percent of familiar words and and sentence length.</p>'; } 
-if (isset($data['sentence_count'])) { echo '</div>'; }
-else {
+    echo '<aside>';
+    if (isset($data['sentence_count'])) { echo '<div class="statistics"><h2>Text Statistics</h2><p>Sentences: '.$data['sentence_count'].'<p>'; }
+    if (isset($data['word_count'])) { echo '<p>Words: '.$data['word_count'].'<p>'; } 
+    if (isset($data['words_per_sentence'])) { echo '<p>Words per sentence: '.$data['words_per_sentence'].'</p><p class="subtext">Shorter sentences indicate simpler reading level. Very simple texts have less than 10 words per sentence. Difficult texts can have more than 20.</p>'; } 
+    if (isset($data['readability'])) { echo '<p>Grade Level: '.$data['readability'].'</p><p class="subtext">Gives approximate grade level, based on the percent of familiar words and and sentence length.</p>'; } 
+    if (isset($data['sentence_count'])) { echo '</div>'; }
+    else {
     if (isset($_REQUEST['word_search'])) { $word_search = $_REQUEST['word_search']; }
     else { $word_search = ''; }
     if (isset($_REQUEST['language'])) { $language = $_REQUEST['language']; }
@@ -311,8 +315,8 @@ else {
     echo '</div>';
     $meta = get_all('meta','3',$db); echo nl2br($meta['content']);
     view_totals($db);
-}
-echo '</aside>';
+    }
+    echo '</aside>';
 }
 ?> 
 

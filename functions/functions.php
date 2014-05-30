@@ -1,6 +1,6 @@
 <?php
-function br2nl($text)
-{
+
+function br2nl($text) {
 	$breaks = array("<br />","<br>","<br/>");  
     return str_ireplace($breaks, "\r\n", $text);
 }
@@ -129,16 +129,15 @@ function fix_blacklist($db) {
 		echo 'blacklisted '.$value.'<br />';
     }
 }
-
 function get_frequent_words($language,$db) {
-		$generated = array();
-		$manual = array();
-		$frequent_generated = select_single_value('language',$language,'frequent_words',$db);
-		$frequent_manual = select_single_value('language',$language,'frequent_manual',$db);
-		if ($frequent_manual != '') { $manual = unserialize($frequent_manual); }
-		if ($frequent_generated != '') { $generated = unserialize($frequent_generated); }
-		$frequent = array_merge($generated,$manual);
-		$frequent = array_values($frequent);
+	$generated = array();
+	$manual = array();
+	$frequent_generated = select_single_value('language',$language,'frequent_words',$db);
+	$frequent_manual = select_single_value('language',$language,'frequent_manual',$db);
+	if ($frequent_manual != '') { $manual = unserialize($frequent_manual); }
+	if ($frequent_generated != '') { $generated = unserialize($frequent_generated); }
+	$frequent = array_merge($generated,$manual);
+	$frequent = array_values($frequent);
 	return $frequent;
 }
 function get_all($type,$id,$db) {
@@ -383,7 +382,7 @@ function import_semantic($db) {
         $words[$inc]['language'] = '25';
         $inc++;
     }
-} 	// end loading data
+	} 	// end loading data
 
 	foreach ($words as $key => $value) {
 		if (($value['language'] == '24') && (in_array($value['word'],$existential))) {
@@ -427,7 +426,6 @@ function insert_word($name,$language,$definition,$pos,$postwo,$sample_sentence,$
 	$q = $db->prepare($sql);
 	$q->execute(array(':name'=>$name,':language'=>$language,':definition'=>$definition,':pos'=>$pos,':postwo'=>$postwo,':sample_sentence'=>$sample_sentence,':english_equivalent'=>$english_equivalent,':domain'=>$domain,':blacklist'=>$blacklist,':englishword'=>$englishword));
 }
-
 function print_grade_levels($readability,$language,$db) {
 	$grades = array();
 	if (isset($language)) {
@@ -471,7 +469,6 @@ function print_order_filter($order) {
     echo '>Word count (low-high)</option>';
     echo '</select>';
 }
-
 function term_dropdown($table,$item,$db) {
 	$terms = get_name('all',$table,$db); 
 	asort($terms);
@@ -485,6 +482,21 @@ function term_dropdown($table,$item,$db) {
     if ($item == '0') { echo 'selected="selected"'; }
     echo '>Uncategorized</option>';
     echo '</select>';
+}
+function better_term_dropdown($table,$item,$db) {
+	$terms = get_name('all',$table,$db); 
+	asort($terms);
+    $output = '<select name="'.$table.'"><option value="all">'.ucwords($table).'</option>';
+    foreach ($terms as $key => $value) { 
+        $output .= '<option value="'.$key.'"';
+        if ($item == $key) { $output .= 'selected="selected"'; }
+        $output .= '>'.$value['name'].'</option>'; 
+    }
+	$output .= '<option value="0"';
+    if ($item == '0') { $output .= 'selected="selected"'; }
+    $output .= '>Uncategorized</option>';
+    $output .= '</select>';
+    return $output;
 }
 function multiterm_dropdown($table,$item,$db) {
 	$terms = get_name('all',$table,$db); 
@@ -514,7 +526,6 @@ function dropdown_limited($table,$id,$db) {
     echo '>Uncategorized</option>';
     echo '</select>';
 }
-
 function process_text($id,$db,$type,$name,$content,$language,$author,$year,$genre,$action) {
 	$clean = clean_sentence($content,$genre,$db);
 	$sentence_array = explode('.',$clean);
@@ -656,7 +667,6 @@ function progressbar($current, $total,$now) {
 	    echo '</div>'; 
     doflush();
 }
-
 function highlight_frequent($type,$text_id,$frequent_words,$text,$db) {
 	$output = '';
 	$clean = clean_sentence($text,'6',$db);
@@ -680,7 +690,6 @@ function highlight_frequent($type,$text_id,$frequent_words,$text,$db) {
 	}	
 	return $output;
 }
-
 function readability_form($db) {
 	if (isset($_POST['submit'])) {
 		$frequent_data = select_single_value('language',$_POST['language'],'frequent_words',$db);
@@ -719,7 +728,6 @@ function readability_form($db) {
 			</form>';
 	}
 }
-
 function parse_text($text,$genre,$db) {
 	$clean = clean_sentence($text,$genre,$db);
 	$sentence_array = explode('.',$clean);
@@ -761,7 +769,6 @@ function readability_calculator($language,$text,$genre,$db) {
 	 	return 'The language you selected does not have enough texts in the database to calculate the grade level of this text.<br />';
 	}	
 }
-
 function select_frequent_words($language,$offset,$limit,$order,$english_loan,$blacklist,$db) {
 	$language_condition = 'language IN';
 	if ($language == '0') { $language_condition = 'language NOT IN'; }
@@ -1043,10 +1050,99 @@ function select_single_value($table,$id,$column,$db) {
 	return $row[$column];
 }
 function sentence_count($input) {
-$sentencemarkers = array('. ','! ','? ','; ');
-$sentencearray = explode( $sentencemarkers[0], str_replace($sentencemarkers, $sentencemarkers[0], $input) );
-$count = count($sentencearray);
-return $count;
+	$sentencemarkers = array('. ','! ','? ','; ');
+	$sentencearray = explode( $sentencemarkers[0], str_replace($sentencemarkers, $sentencemarkers[0], $input) );
+	$count = count($sentencearray);
+	return $count;
+}
+function statistical_analysis_computations($result,$db) {
+	$total = count($result);
+	$output = 'Total words analyzed:'. $total;
+	foreach ($result as $key => $value) {
+			$posone = select_single_value('pos',$value['pos'],'name',$db);
+			$pos[$posone][] = $value['name'];
+			$clitic = strpos($posone,'clitic');
+			$linker = strpos($posone,'linker');
+			$pronoun = strpos($posone,'pronoun');
+			$determiner = strpos($posone,'determiner');
+			$numeral = strpos($posone,'numeral');
+			if ($value['pos'] == '0') {$major['uncategorized'][] = $value['name']; }
+			elseif ($clitic !== false) { $major['clitic'][] = $value['name']; }
+			elseif ($linker !== false) { $major['linker'][] = $value['name']; }
+			elseif ($pronoun !== false) { $major['pronoun'][] = $value['name']; }
+			elseif ($determiner !== false) { $major['determiner'][] = $value['name']; }
+			elseif ($numeral !== false) { $major['numeral'][] = $value['name']; }
+			else { $major[$posone][] = $value['name']; }
+
+	}
+	if (isset($major)) {
+		$inc = 0;
+		$output .= '<h2>Major Parts of Speech</h2>';
+		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
+		foreach ($major as $name => $values) {
+			$inc = $inc+count($values);
+			$output .= '<tr><td>'.$name.'</td><td>'.count($values).'</td><td>'.(count($values)/$total*100).'</td></tr>';
+		}
+		$output .= '<tr><td><b>Total</b></td><td>'.$inc.'</td><td>'.($inc/$total*100).'</td></tr>';
+		$output .= '</tbody></table><br />';
+		foreach ($major as $name => $values) {
+			$output .= '<h3>'.$name.'</h3>';
+			if (isset($values)) {
+				foreach ($values as $value) {
+					$output .= $value.', ';
+				}
+			}
+		}
+	}
+	if (isset($pos)) { 
+		$output .= '<br /><h2>All Parts of Speech</h2>';
+		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
+		foreach ($pos as $name => $values) {
+			if ($name != '') {
+				$output .= '<tr><td>'.$name.'</td><td>'.count($values).'</td><td>'.(count($values)/$total*100).'</td></tr>';
+			}
+		}
+		$output .= '</tbody></table>';
+	}
+	else { $output .= '<br />No words are tagged with parts of speech in this language'; }
+	return $output;
+}
+function statistical_analysis_controller($db) {
+	$output = 'Something went wrong with this page. Try <a href="./index.php?type=statistical&id=all">reloading</a>.';
+	if (isset($_REQUEST['id'])) {
+		if ($_REQUEST['id'] == 'all') {
+			$output = statistical_analysis_form($db);
+		}
+		if ($_REQUEST['id'] == 'results') {
+			$output = statistical_analysis_results($db);
+		}
+	}
+	return $output;
+}
+function statistical_analysis_form($db) {
+	$output = '<h2>Run statistical analysis on a set of words</h2>';
+	$output .= '<form id="statistical_analysis" method="post" action="./index.php?type=statistical&id=results">';
+	$output .= 'Language to analyze: '.better_term_dropdown('language','all',$db);
+	$output .= '<br />Number of words: <input type="text" value="" name="number" placeholder="leave blank for all">';
+	$output .= '<span class="subtext">Will provide statistics on the top X most frequent words, where X is the value given</span>';	
+	$output .= '<br />Include English loan words <input type="checkbox" name="loan" value="1" />';
+	$output .= '<br />Include blacklisted words <input type="checkbox" name="blacklist" value="1" />';	
+	$output .= '<br /><input type="submit" name="submit" value="Run Analysis"></form>';
+	return $output;
+}
+function statistical_analysis_results($db) {
+	$output ='The form was not submitted correctly';
+	if (isset($_POST['submit'])) {
+		if ($_POST['submit'] == 'Run Analysis') {
+			if (empty($_POST['number'])) { $_POST['number'] = 100000; }
+			if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 0; }
+			if (empty($_POST['loan'])) { $_POST['loan'] = 0; }			
+			$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],$_POST['blacklist'],$db);
+			$output = 'Words analyzed: '.count($result).'<br />';
+			$output = statistical_analysis_computations($result,$db);
+		}
+	}
+	return $output;
 }
 function update_article($id,$name,$content,$db) {
 	$sql = 'UPDATE article SET name = :name, content = :content WHERE id = :id';
@@ -1092,7 +1188,6 @@ function update_distinct_words($language,$db) {
 	$q = $db->prepare($sql);
 	$q->execute(array(':distinct_words' => $distinct,':language'=>$language));
 }
-
 function update_language($id,$frequent_word_value,$sentences_constant,$words_constant,$db) {
 	$sql = 'UPDATE language SET frequent_word_value = :frequent_word_value, sentences_constant = :sentences_constant, words_constant = :words_constant WHERE id = :id';
 	$q = $db->prepare($sql);
@@ -1150,7 +1245,6 @@ function update_readability_bulk($language,$db) {
 	    }
     }
 }
-
 function update_readability($language,$id,$db) {
 	$frequent = 0;
 	$total = 0;

@@ -14,9 +14,14 @@
         <ul>
             <li class="active"><a href="./index.php">Home</a></li>
             <li><a href="./index.php?type=article&id=1">About</a></li>
-            <li><a href="./index.php?type=word&id=all">Words</a></li>
+            <li class="dropdown" tabindex="0"><a href="#">Word Lists</a>
+                <ul class="dropdown-menu">
+                    <li><a href="./index.php?type=word&id=all">Frequency Lists</a></li>
+                    <li><a href="./index.php?type=semantic&id=all">Semantic Lists</a></li>
+                    <li><a href="./index.php?type=statistical&id=all">Statistical Analysis</a></li>
+                </ul>
+            </li>
             <li><a href="./index.php?type=text&id=all">Texts</a></li>
-            <li><a href="./index.php?type=semantic&id=all">Semantic Lists</a></li>
             <li><a href="./index.php?type=article&id=3">Contact</a></li>
             <li><a href="./index.php?type=article&id=8">Documentation</a></li>
             <?php 
