@@ -1068,10 +1068,12 @@ function sentence_count($input) {
 	$count = count($sentencearray);
 	return $count;
 }
-function statistical_analysis_computations($result,$db) {
+function statistical_analysis_computations($result,$db,$language_id) {
 	if (isset($result)) {
 	$total = count($result);
-	$output = 'Total words analyzed:'. $total;
+	$language = select_single_value('language',$language_id,'name',$db);
+	if (empty($language)) { $language = 'all languages'; }
+	$output = 'Total words analyzed in '.$language.':'. $total;
 	foreach ($result as $key => $value) {
 			$posone = select_single_value('pos',$value['pos'],'name',$db);
 			$pos[$posone][] = $value['name'];
@@ -1159,13 +1161,14 @@ function statistical_analysis_results($db) {
 	$output ='The form was not submitted correctly';
 	if (isset($_POST['submit'])) {
 		if ($_POST['submit'] == 'Run Analysis') {
+			if (empty($_POST['number'])) { $_POST['number'] = 10000; }
 			if (is_numeric($_POST['number'])) {
-				if (empty($_POST['number'])) { $_POST['number'] = 10000; }
+				if ($_POST['number'] > 10000) { $_POST['number'] = 10000; }
 				if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 'no'; }
 				if (empty($_POST['loan'])) { $_POST['loan'] = 'no'; }			
 				$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
 				$output = 'Words analyzed: '.count($result).'<br />';
-				$output = statistical_analysis_computations($result,$db);
+				$output = statistical_analysis_computations($result,$db,$_POST['language']);
 			}
 		}
 	}
