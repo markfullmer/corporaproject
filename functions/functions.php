@@ -1159,12 +1159,14 @@ function statistical_analysis_results($db) {
 	$output ='The form was not submitted correctly';
 	if (isset($_POST['submit'])) {
 		if ($_POST['submit'] == 'Run Analysis') {
-			if (empty($_POST['number'])) { $_POST['number'] = 10000; }
-			if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 'no'; }
-			if (empty($_POST['loan'])) { $_POST['loan'] = 'no'; }			
-			$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
-			$output = 'Words analyzed: '.count($result).'<br />';
-			$output = statistical_analysis_computations($result,$db);
+			if (is_numeric($_POST['number'])) {
+				if (empty($_POST['number'])) { $_POST['number'] = 10000; }
+				if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 'no'; }
+				if (empty($_POST['loan'])) { $_POST['loan'] = 'no'; }			
+				$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
+				$output = 'Words analyzed: '.count($result).'<br />';
+				$output = statistical_analysis_computations($result,$db);
+			}
 		}
 	}
 	return $output;
