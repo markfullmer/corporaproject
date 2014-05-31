@@ -803,7 +803,15 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 		$black_filter = "AND blacklist <> '1'";
 	}
 	else { $black_filter = "AND blacklist = '1'";}
-	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") AND count > 1 ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
+	$count_limit = 'AND count > 0';
+	$sql = "SELECT id FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
+   	$statement = $db->prepare($sql);
+	$statement->execute(array());
+	$total_count = $statement->rowCount();
+	if ($total_count > 10000) {
+		$count_limit = 'AND count > 1';
+	}
+	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
 	$statement->execute(array());
     while ($row = $statement->fetch()) {
@@ -1214,7 +1222,7 @@ function update_meta($id,$content,$db) {
 	$q->execute(array(':content' => $content,':id' => $id));
 }
 function update_distinct_words($language,$db) {
-	$sql = 'SELECT DISTINCT name FROM word WHERE language='.$language.' AND blacklist != "1" AND englishword != "1" AND count > "0" AND standard_spelling =""'; 
+	$sql = 'SELECT id FROM word WHERE language='.$language.' AND blacklist != "1" AND englishword != "1" AND count > "0" AND standard_spelling =""'; 
     $result = $db->query($sql)->fetchAll();
     $distinct = count($result);
 	$sql = 'UPDATE language SET distinct_words = :distinct_words WHERE id = :language';

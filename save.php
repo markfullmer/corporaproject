@@ -53,6 +53,7 @@ if ($_REQUEST['submit'] == 'Update' && (in_array($type, array('language','genre'
 	update_basic($type,$id,$content,$db);
 	if ($type == 'language') { 
 		update_language($id,$frequent_word_value,$sentences_constant,$words_constant,$db);
+		update_distinct_words($id,$db);
 		update_frequent_words($id,$db);
 		header('Location: ./edit.php?type='.$type.'&id='.$id.'&message=2');
 		exit();
