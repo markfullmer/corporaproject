@@ -246,6 +246,12 @@ i {
 .default tr:first-child td:last-child {
   border-width: 0px 0px 1px 1px; }
 
+#word-list-results {
+  width: 100%; }
+
+#word-list-form {
+  width: 100%; }
+
 @media screen and (max-width: 800px) and (min-width: 641px) {
   body {
     font-size: 0.9em; }

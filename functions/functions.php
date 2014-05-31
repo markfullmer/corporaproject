@@ -1352,12 +1352,13 @@ function word_list_controller($db) {
 	else { $loan = 'no'; }
 	if (isset($_REQUEST['blacklist'])) { $blacklist = 1; }
 	else { $blacklist = 'no'; }
-	$output = word_list_form($db,$language,$offset,$loan,$blacklist);
-	$output .= word_list_results($db,$language,$offset,$loan,$blacklist);
-	return $output;
+	return word_list_results($db,$language,$offset,$loan,$blacklist);
 }
 function word_list_results($db,$language,$offset,$loan,$blacklist) {
 	$results = select_frequent_words($language,$offset,1000,'count',$loan,$blacklist,$db);
+	if (count($results) == 1000) { $next = true; }
+	else { $next = false; }
+	$output = word_list_form($db,$language,$offset,$loan,$blacklist,$next);
 	if (isset($results)) {
 		$languages = get_name('all','language',$db);
 		$pos = get_name('all','pos',$db);
@@ -1367,7 +1368,7 @@ function word_list_results($db,$language,$offset,$loan,$blacklist) {
 		foreach ($languages as $key => $val) {
 			$access[$key] = check_language_permission($key,$db);
 		}
-		$output = '<table class="default" style="width:100%;"><tr><td>Word</td><td>Definition</td><td>Part of Speech</td><td>Sample Usage</td><td>Count</td></tr>';
+		$output .= '<table class="default" id="word-list-results"><tr><td>Word</td><td>Definition</td><td>Part of Speech</td><td>Sample Usage</td><td>Count</td></tr>';
         foreach ($results as $key =>$value) { 
         	$lang = $value['language'];
             $count = number_format($value['count']);
@@ -1406,19 +1407,23 @@ function word_list_results($db,$language,$offset,$loan,$blacklist) {
     }
 	return $output;
 }
-function word_list_form($db,$language,$offset,$loan,$blacklist) {
-	$output = '<form action="index.php?type=word" method="post">';
+function word_list_form($db,$language,$offset,$loan,$blacklist,$next) {
+	$output = '<div id="word-list-form">
+	<span class="subtext">Displays words with 2 or more occurrences in the corpus.</span>
+	<form action="index.php?type=word" method="post">';
     $output .= better_term_dropdown('language',$language,$db);
     $output .= '<input type="hidden" name="id" value="all" />';
     $output .= '<input type="hidden" name="offset" value="'.$offset.'" />';
     $output .= '&nbsp;<input type="checkbox" name="loan" value="1" ';
     if ($loan == 1) { $output .= 'checked="checked"'; }
-    $output .= ' />Include English loan words';
+    $output .= ' /> Include English loan words';
     $output .= '&nbsp;&nbsp;&nbsp;<input type="checkbox" name="blacklist" value="1" ';
     if ($blacklist == 1) { $output .= 'checked="checked"'; }
     $output .= ' /> Include blacklisted words';
     $output .= '<br /><input type="submit" value="Filter" name="submit" />';
-    $output .= '<input id="search-next" type="submit" value="Next 1000 results" name="next" />'	;
+    if ($next) {
+	    $output .= '<input id="search-next" type="submit" value="Next 1000 results" name="next" />'	;
+	}
     $output .= '</form>';
     if (isset($_SESSION['uid'])) {
 	    $output .= '<form action="export-words.php" method="post">';
@@ -1427,7 +1432,7 @@ function word_list_form($db,$language,$offset,$loan,$blacklist) {
     	$output .= '<input type="hidden" name="loan" value="'.$loan.'" />';
     	$output .= '<input type="hidden" name="blacklist" value="'.$blacklist.'" />';
 		$output .= '<input type="submit" value="Export records to spreadsheet" name="export" />';
-    	$output .= '</form>';
+    	$output .= '</form></div>';
     }	
 	return $output;
 }
