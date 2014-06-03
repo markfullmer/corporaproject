@@ -721,14 +721,15 @@ function readability_form($db) {
 		else {
 			echo '<span style="float:right;"><a href="./index.php?type=readability"><button>Find the grade level for another text</button></a></span>';
 			$readability = readability_calculator($_POST['language'],$_POST['text'],$_POST['genre'],$db);
-			print_r($readability['word_array']);
 			$difficult = 100-number_format($readability['percent_frequent_words'],0);
 			echo '<div class="textbox" style="width:300px;">This text is calculated to be at';
 			echo '<h3>Grade '.number_format($readability['score'],1).' reading level</h3></div>';
 			echo '<br />This calculation was based on the following factors: <br />';
 			echo '<ul><li>The text contains <b>'.$readability['word_count'].'</b> words';
 			echo '<li>It has an average of <b>'.number_format($readability['words_per_sentence'],0).'</b> words per sentence</li>';		
+			echo '<li><b>'.number_format($readability['percent_frequent_words'],0).' percent</b> of the words are considered frequently occurring.</li>';
 			echo '<li><b>'.$difficult.' percent</b> of words do not occur frequently in the corpus (highlighted below)</li>';
+	
 			echo '<br /><div class="textbox">'.highlight_frequent('normal',0,$readability['frequent_words'],$_POST['text'],$db).'</div>';
 		}
 	}
@@ -1266,8 +1267,12 @@ function update_readability_bulk($language,$db) {
     			$word_array_list = unserialize($row['word_list']);
     			$words_per_sentence = $row['words_per_sentence']; 
 				foreach ($word_array_list as $key => $value) {
-					if (in_array($key,$frequent_word_array)) { $frequent = $frequent+$value; }
-					$total = $total+$value;
+					if ($key != '') {
+						if (in_array($key,$frequent_word_array)) { 
+							$frequent = $frequent+$value; 
+						}
+						$total = $total+$value;
+					}
 				}
 				$percent_frequent_words = $frequent/$total*100;
 				$readability[$id] = ($sentences_constant*$words_per_sentence)+($words_constant*(100-$percent_frequent_words)) +0.839; 
@@ -1303,7 +1308,11 @@ function update_readability($language,$id,$db) {
 		$word_array_list = unserialize($word_list);
 		$words_per_sentence = select_single_value('text',$id,'words_per_sentence',$db);
 		foreach ($word_array_list as $key => $value) {
-			if (in_array($key,$frequent_word_array)) { $frequent = $frequent+$value; }
+			if ($key != '') {
+				if (in_array($key,$frequent_word_array)) { 
+					$frequent = $frequent+$value; 
+				}
+			}
 			$total = $total+$value;
 		}
 		$percent_frequent_words = $frequent/$total*100;
