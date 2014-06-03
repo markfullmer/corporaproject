@@ -721,6 +721,7 @@ function readability_form($db) {
 		else {
 			echo '<span style="float:right;"><a href="./index.php?type=readability"><button>Find the grade level for another text</button></a></span>';
 			$readability = readability_calculator($_POST['language'],$_POST['text'],$_POST['genre'],$db);
+			print_r($readability['word_array']);
 			$difficult = 100-number_format($readability['percent_frequent_words'],0);
 			echo '<div class="textbox" style="width:300px;">This text is calculated to be at';
 			echo '<h3>Grade '.number_format($readability['score'],1).' reading level</h3></div>';
@@ -769,8 +770,12 @@ function readability_calculator($language,$text,$genre,$db) {
 		$word_array_list = $parsed_text['word_array']; 
 		$words_per_sentence = $parsed_text['words_per_sentence']; 
 		foreach ($word_array_list as $key => $value) {
-			if (in_array($key,$frequent_word_array)) { $frequent = $frequent+$value; }
-			$total = $total+$value;
+			if ($key != '') {
+				if (in_array($key,$frequent_word_array)) { 
+					$frequent = $frequent+$value; 
+				}
+				$total = $total+$value;
+			}
 		}
 		$percent_frequent_words = $frequent/$total*100;
 		$readability['score'] = ($sentences_constant*$words_per_sentence)+($words_constant*(100-$percent_frequent_words)) +0.839; 
@@ -1317,7 +1322,9 @@ function update_total_words($word_count,$language,$db) {
 }
 function view_totals($db) {
 	$languages = get_name('all','language',$db);
-	echo '<table class="default"><tr><td>Language</td><td>Texts</td><td>Total Words</td><td>Word Forms</td></tr>';
+	echo '<table class="default">
+	<caption class="off-screen">Contents of Corpora</caption>
+	<tr><th scope="col" title="Language">Language</th><th scope="col" title="Texts">Texts</th><th scope="col" title="Total Words">Total Words</th><th scope="col" title="Total Words">Word Forms</th></tr>';
     $stats = array();
     foreach ($languages as $key => $value) {
         $stats[$key]['language'] = $value['name'];

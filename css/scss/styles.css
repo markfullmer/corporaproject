@@ -2,7 +2,6 @@ html {
   font: 300 1.1em "Open Sans", sans serif; }
 
 body {
-  max-width: 1280px;
   margin: 0 auto; }
 
 header {
@@ -87,23 +86,27 @@ nav ul li ul li:hover {
 nav form {
   float: right; }
 
-section {
-  background: white;
-  width: 63%;
-  display: inline-block; }
-
-section, aside, footer {
+aside, footer {
   padding: 1%;
   float: left; }
 
 article {
   background: white;
-  line-height: 1.3em; }
+  line-height: 1.3em;
+  width: 60%;
+  display: inline-block;
+  float: left;
+  margin: 2% 1% 0% 4%; }
+
+article.all {
+  width: 94%; }
 
 aside {
   background: white;
   width: 30%;
-  display: inline-block; }
+  margin: 1% 2% 1% 0%;
+  display: inline-block;
+  float: left; }
 
 footer {
   font-size: 0.8em;
@@ -139,8 +142,13 @@ article header h2, aside h2 {
 
 .spaced-box, .textbox, .blurb-box, .message, .statistics {
   border: 1px solid #b8b8b8;
-  background-color: #e8e8e8;
-  border-radius: 10px; }
+  background-color: #e8e8e8; }
+
+#search {
+  margin: 2% 2% 2% 0;
+  width: 75%;
+  height: 30px;
+  font-size: 1.3em; }
 
 .code-box {
   font: 0.7em 'Source Code Pro', sans-serif;
@@ -210,7 +218,7 @@ i {
 .default tr:nth-child(even) {
   background-color: white; }
 
-.default td {
+.default td, .default th {
   vertical-align: middle;
   border: 1px solid #b8b8b8;
   border-width: 0px 1px 1px 0px;
@@ -219,6 +227,19 @@ i {
 
 #search-next {
   float: right; }
+
+.off-screen, a.skip-nav {
+  position: absolute;
+  left: -999px;
+  overflow: hidden; }
+
+a.skip-nav:hover, a.skip-nav:link:active, a.skip-nav:focus {
+  position: relative;
+  left: 0px;
+  float: center;
+  color: #aa4400;
+  text-decoration: none;
+  background: white; }
 
 .default tr:last-child td {
   border-width: 0px 1px 0px 0px; }
@@ -229,10 +250,9 @@ i {
 .default tr:last-child td:last-child {
   border-width: 0px 0px 0px 0px; }
 
-.default tr:first-child td {
-  background-color: #660000;
+.default tr th {
+  background-color: #404040;
   border: 1px solid #b8b8b8;
-  text-align: center;
   border-width: 0px 0px 1px 1px;
   font-weight: 400;
   color: white; }
@@ -252,29 +272,53 @@ i {
 #word-list-form {
   width: 100%; }
 
-@media screen and (max-width: 800px) and (min-width: 641px) {
+@media screen and (max-width: 1280px) and (min-width: 961px) {
   body {
-    font-size: 0.9em; }
+    font-size: 1em; }
 
-  section {
-    width: 40%;
+  article {
+    width: 55%;
     display: inline-block; }
 
   aside {
-    width: 49%;
-    float: right;
-    display: inline-block; } }
+    width: 35%;
+    float: left;
+    display: inline-block; }
+
+  article.all {
+    width: 94%; } }
+@media screen and (max-width: 960px) and (min-width: 641px) {
+  body {
+    font-size: 0.9em; }
+
+  article, aside {
+    width: 45%;
+    float: left;
+    display: inline-block; }
+
+  article.all {
+    width: 95%; } }
 @media screen and (max-width: 640px) {
   body {
     font-size: 0.8em; }
 
-  section, aside {
-    display: block;
-    width: auto; }
-
   article, aside {
-    margin-top: 1em;
-    width: 97%; }
+    width: 98%;
+    margin: 0 auto; }
+
+  article.all {
+    top: 0;
+    position: relative; }
+
+  aside {
+    position: absolute;
+    height: 200px;
+    display: block; }
+
+  article {
+    position: absolute;
+    top: 520px;
+    display: block; }
 
   nav li {
     display: inline-block; }

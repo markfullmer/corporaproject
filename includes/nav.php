@@ -1,4 +1,5 @@
 <header>
+    <a class="skip-nav" href="#main-content">Skip to Main Content</a>
     <nav>
         <form class="navbar-form pull-right" method="post" action="login.php">
             <?php

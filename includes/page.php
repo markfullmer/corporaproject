@@ -17,18 +17,18 @@
         if (check_permissions_single('7',$db)) { $name .= ' (<a href="./edit.php?type=article&id='.$id.'">edit</a>)'; }
     }
 
-echo '<section';
-if ($id == 'all') { echo ' class="all"'; }
-echo '>';
+
 if (isset($_REQUEST['message'])) { 
     $messageid = $_REQUEST['message'];
     $message = get_name($messageid,'messages',$db); 
     echo '<div class="spaced-box">'.$message[$messageid]['name'].'</div>';
     } 
+echo '<article';
+if ($id == 'all') { echo ' class="all"'; }
+echo '>';
 ?>
-	<article>
 		<header>
-        <h2><?php echo $name; ?>
+        <h2 id="main-content"><?php echo $name; ?>
         </h2>
         <?php if (isset($data['author'])) { $author = strtolower($data['author']); $author = ucwords($author); $author = $author; echo '<p>By '.$author.'<p>'; } ?>
         <?php if (isset($data['year'])) { echo '<p>Published: '.$data['year'].'<p>'; } ?>
@@ -173,7 +173,6 @@ $content = $data['content'];
 }
 ?>
     </article> 
-</section>
 <?php 
 if ($id != 'all' && $type != 'semantic') {
     echo '<aside>';
@@ -190,7 +189,7 @@ if ($id != 'all' && $type != 'semantic') {
     echo '<div class="blurb-box">';
     echo '<h2>Multi-Language Dictionary</h2>';
     echo '<form action="./index.php" method="post">';
-    echo '<input type="text" name="word_search" value="'.$word_search.'" style="width:100%" placeholder="Enter a word" /><br />Language: ';
+    echo '<input type="text" id="search" name="word_search" value="'.$word_search.'" placeholder="Enter a word" /><br />Language: ';
     term_dropdown('language',$language,$db);
     echo '<input type="submit" name="submit_search" value="Find" />';
     echo '</form>';
@@ -202,4 +201,3 @@ if ($id != 'all' && $type != 'semantic') {
     echo '</aside>';
 }
 ?> 
-
