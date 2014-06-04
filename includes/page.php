@@ -5,6 +5,7 @@
     if ($type == 'readability') { $data['name'] = 'Readability Instrument'; $id='all';}
     if ($type == 'semantic' && $id == 'all') { $data['name'] = 'Semantic Domains'; }
     if ($type == 'statistical') { $data['name'] = 'Statistical Analysis'; }
+    if ($type == 'map') { $data['name'] = 'Map'; $id='all'; }
     $name = strtolower($data['name']);
     $name = ucwords($name);
     if ($type == 'text' && $id != 'all') {
@@ -35,6 +36,9 @@ echo '>';
         <?php if (isset($data['genre'])) { '<p>Genre: '.select_single_value('genre',$data['genre'],'name',$db).'<p>'; } ?>
         </header>
 <?php
+if ($type == 'map') {
+    echo map();
+}
 if ($type == 'statistical') {
         echo statistical_analysis_controller($db);
     }

@@ -8,7 +8,7 @@ if (isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'art
 if (isset($_REQUEST['frequent_mod'])) { $frequent_mod = $_REQUEST['frequent_mod']; } else { $frequent_mod = false; }
 if (isset($_REQUEST['id'])) { $id = $_REQUEST['id']; }
 if ($type == 'text' && $id != 'all') { check_permissions($permission = array(3)); }	
-$individual_pages = array('semantic','readability','statistical');
+$individual_pages = array('semantic','readability','statistical','map');
 if (!in_array($type,$individual_pages)) { $data = get_all($type,$id,$db); }
 include('includes/page.php'); 
 include('includes/footer.php'); 

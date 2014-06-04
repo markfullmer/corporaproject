@@ -1,22 +1,3 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <style>
-.labels {color: red;
-  font-size:18pt;
-  background-color:lightgray;
-  padding:5px;
-  border:1px solid gray;
-  opacity:.8;
-}
-</style>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <title>Google Maps AJAX + mySQL/PHP Example</title>
-    <script src="http://maps.google.com/maps/api/js?sensor=false"
-            type="text/javascript"></script>
-    <script src="../js/markerwithlabel.js"
-            type="text/javascript"></script>       
-    <script type="text/javascript">
     //<![CDATA[
     var map;
     var markers = [];
@@ -70,7 +51,7 @@
    function search() {
      clearLocations(); 
      var word = document.getElementById("addressInput").value;
-     var searchUrl = 'map_search.php?word=' + word;
+     var searchUrl = 'includes/map_search.php?word=' + word;
      downloadUrl(searchUrl, function(data) {
        var xml = parseXml(data);
        var markerNodes = xml.documentElement.getElementsByTagName("marker");
@@ -148,14 +129,3 @@
     function doNothing() {}
 
     //]]>
-  </script>
-  </head>
-  <body style="margin:0px; padding:0px;" onload="load()"> 
-    <div>
-     <input type="text" id="addressInput" size="10"/>
-    <input type="button" onclick="search()" value="Search by English word"/>
-    </div>
-    <div><select id="locationSelect" style="width:100%;visibility:hidden"></select></div>
-    <div id="map" style="width: 100%; height: 80%"></div>
-  </body>
-</html>

@@ -1,4 +1,7 @@
 <?php
+function __autoload($class_name) {
+        include_once '../classes/' . $class_name . '.php';
+}
 function aasort (&$array, $key) {
     $sorter=array();
     $ret=array();
@@ -1150,6 +1153,20 @@ function statistical_analysis_computations($result,$db,$language_id) {
 	else { $output .= '<br />No words are tagged with parts of speech in this language'; }
 	}
 	else { $output = '<br />No words were found in this language'; }
+	return $output;
+}
+function map() {
+	$output = '
+    <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="js/markerwithlabel.js" type="text/javascript"></script> 
+    <script src="js/map.js" type="text/javascript"></script> 
+    <script type="text/javascript">window.onload = function (evt) { load(); };</script>
+    <input type="text" id="addressInput" size="10" />
+    <input type="button" onclick="search()" value="Search by English word"/>
+    </div>
+    <div><select id="locationSelect" style="width:100%;visibility:hidden"></select></div>
+    <div id="map"></div>
+	';	
 	return $output;
 }
 function statistical_analysis_controller($db) {
