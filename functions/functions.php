@@ -51,7 +51,7 @@ function clean_sentence($raw,$genre,$db) {
 	$raw = str_replace('  ', ' ',$raw);
 	$raw = trim($raw);
 	$raw = str_replace(',',' ',$raw);
-	$raw = preg_replace("/[^a-zA-Z\s.?!;]/", "", $raw);
+	$raw = preg_replace("/[^a-zA-Z\s.?!;-]/", "", $raw);
 	$raw = preg_replace("/[?!;]/",". ", $raw);
 	$raw = trim($raw);
 	$raw = str_replace('. .','.',$raw);
@@ -1375,10 +1375,13 @@ function view_totals($db) {
     echo '</table>';
 }
 function word_array($input) {
+	$bad = array('','-','--','---');
 	$input = preg_replace("/[.]/"," ", $input);
 	$c = explode(' ',$input);
 	foreach ($c as $key => $value) {
-		if (strlen($value) > '25') { unset($c[$key]); }
+		if (strlen($value) > '25' || in_array($value,$bad)) { 
+			unset($c[$key]); 
+		}
 	}
 	natcasesort($c);
 	$output = array_count_values($c);
@@ -1476,5 +1479,11 @@ function word_list_form($db,$language,$offset,$loan,$blacklist,$next) {
     	$output .= '</form></div>';
     }	
 	return $output;
+}
+function ahah($type,$total) {
+	echo '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$type.'&total='.$total.'\'),checker('.$total.')">'.$type.'</button>
+		<progress id="progressBar" value="0" max="'.$total.'" class="hide"></progress>
+		<span id="progress" class="hide"><span id="finished">0</span> out of '.$total.'</span>';
+	echo '<div id="result"></div>';
 }
 ?>
