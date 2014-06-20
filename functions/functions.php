@@ -825,7 +825,7 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	$names = array();
 	$inc = 1+$offset;
     while ($row = $statement->fetch()) {
-    	if (!in_array($row['name'],$names) && $inc < 1001+$offset) {
+    	if (!in_array($row['name'],$names)) {
 	    	$names[] = $row['name'];
 	    	$inc++;
 	    	$key = $row['id'];
