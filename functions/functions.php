@@ -825,7 +825,7 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	$names = array();
 	$inc = 1+$offset;
     while ($row = $statement->fetch()) {
-    	if (!in_array($row['name'],$names)) {
+    	if (!in_array($row['name'],$names) && $inc < 1001+$offset) {
 	    	$names[] = $row['name'];
 	    	$inc++;
 	    	$key = $row['id'];
@@ -1407,7 +1407,7 @@ function word_list_controller() {
 function word_list_results($language,$offset,$loan,$blacklist) {
 	global $db;
 	$results = select_frequent_words($language,$offset,1100,'count',$loan,$blacklist,$db);
-	if (count($results) == 1000) { $next = true; }
+	if (count($results) > 999) { $next = true; }
 	else { $next = false; }
 	$output = word_list_form($language,$offset,$loan,$blacklist,$next);
 	if (isset($results)) {
