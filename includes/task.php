@@ -3,7 +3,7 @@ session_start();
 include('./../functions/functions.php');
 include('./../variables/variables.php');
 if ($_SESSION['uid'] != '1') {
-	//die();
+	die();
 }
 echo 'helper script';
 if ($_GET['type'] == 'wordcount_reset') {
