@@ -1,5 +1,6 @@
 <?php session_start();
 $now = microtime(true); 
+date_default_timezone_set('America/Chicago');
 include('functions/functions.php');
 include('variables/variables.php');
 include('includes/header.php');

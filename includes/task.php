@@ -1,10 +1,11 @@
 <?php 
 session_start();
-include('./../functions/functions.php');
-include('./../variables/variables.php');
 if ($_SESSION['uid'] != '1') {
 	die();
 }
+include('./../functions/functions.php');
+include('./../variables/variables.php');
+
 echo 'helper script';
 if ($_GET['type'] == 'wordcount_reset') {
 	$sql = 'UPDATE word SET count =""';
@@ -13,12 +14,23 @@ if ($_GET['type'] == 'wordcount_reset') {
 }
 
 $total = $_GET['total'];
-$limit = '1';
+if (isset($_GET['batch'])) {
+	$limit = $_GET['batch'];
+}
+else {
+	$limit = '10';
+}
 $offset = '0';
 $values = array();
 $done = false;
 
 // Prepare the task runner
+if ($_GET['type'] == 'Export all words') {
+	$header = array("Word","Count","Part(s) of Speech","Meaning","Sample Sentence");
+	$fp = fopen('export.xls', 'w');
+	fputcsv($fp,$header);
+	fclose($fp);
+}
 if ($_GET['type'] == 'readability') {
 	$language = $_GET['language'];
 	$frequent_words = select_single_value('language',$language,'frequent_words',$db);
@@ -50,6 +62,33 @@ while (!$done) {
 
 function task($values) {
 	global $db;
+	if ($_GET['type'] == 'Export all words') {
+		$result = select_frequent_words($_GET['language'],$values['offset'],$values['limit'],'count',false,false,$db);
+		$pos = get_name('all','pos',$db);
+		foreach ($result as $key => $value) {
+  			$pos_array = array();
+  			if ($value['pos'] != 0) { 
+    			$one = $value['pos'];
+    			$pos_array[] = $pos[$one]['name']; 
+  			}
+  			if ($value['postwo'] != 0) { 
+    			$two = $value['postwo'];
+    			$pos_array[] = $pos[$two]['name']; 
+  			}
+  			$parts_of_speech = join('/ ',$pos_array);
+  			$altered[$key]['name'] = $value['name'];
+  			$altered[$key]['count'] = $value['count'];
+  			$altered[$key]['pos'] = $parts_of_speech;
+  			$altered[$key]['definition'] = $value['definition'];
+  			$altered[$key]['sample'] = $value['sample_sentence'];
+		}
+		$fp = fopen('export.xls', 'a+');
+		foreach ($altered as $key => $value) {
+			array_walk($value, 'cleanData');
+			fputcsv($fp, $value);
+		}
+		fclose($fp);		 
+	}
 	if ($_GET['type'] == 'words_in_texts') {
 		// Get the data
 		$sql = 'SELECT id,name,content,language,author,year,genre FROM text LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
