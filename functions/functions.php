@@ -1479,7 +1479,7 @@ function word_list_form($language,$offset,$loan,$blacklist,$next) {
     $output .= '</form>';
     if (isset($_SESSION['uid'])) {
 
-/*	    $output .= '<form action="export.php" method="post">';
+	/*	$output .= '<form action="export.php" method="post">';
 	    $output .= '<input type="hidden" name="language" value="'.$language.'" />';
     	$output .= '<input type="hidden" name="id" value="all" />';
     	$output .= '<input type="hidden" name="loan" value="'.$loan.'" />';
