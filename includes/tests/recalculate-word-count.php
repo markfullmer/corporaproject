@@ -1,6 +1,7 @@
 <?php
+echo 'This is a helper function and must be uncommented to be used.';
 
-echo '<h2>Recalculate all Word counts</h2>';
+/*echo '<h2>Recalculate all Word counts</h2>';
 include('../../variables/variables.php');
 include('../../functions/functions.php');
 
@@ -14,6 +15,6 @@ while ($inc < 520)  {
 	$inc++;
 	echo 'Updated '.$row['name'].'<br />';
 }
-
+*/
 
 ?>

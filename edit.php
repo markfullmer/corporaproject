@@ -198,9 +198,10 @@ echo '<input type="submit" name="submit" value="'.$status.'" /></form>';
 
 if ($type == 'language' && $status == 'Update') { 
   $total = count_values('text','language',$id,$db);
+  $message = 'Readability updated for all texts.';
   $url = 'includes/task.php?type=readability&language='.$id.'&total='.$total;
   echo '
-<button value="Submit" onclick="runTask(\''.$url.'\'),checker('.$total.')">Recalculate readability for all texts</button>
+<button value="Submit" onclick="runTask(\''.$url.'\'),checker('.$total.',\''.$message.'\')">Recalculate readability for all texts</button>
 <progress id="progressBar" value="0" max="'.$total.'" class="hide"></progress>
 <span id="progress" class="hide"><span id="finished">0</span> out of '.$total.'</span>';
 echo '<div id="result"></div>';

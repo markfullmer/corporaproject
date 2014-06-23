@@ -61,7 +61,7 @@ if ($id == 'all') {
         $genres = get_name('all','genre',$db);
         $results = select_single_value('meta','7','content',$db);
         if (isset($_REQUEST['language'])) { $language = $_REQUEST['language']; } 
-        else { $language = 'all'; }
+        else { $language = '24'; }
         if ($language == 'all') { 
             $l = get_name('all','language',$db);
             $l_keys = array_keys($l);
@@ -110,7 +110,6 @@ if ($id == 'all') {
                 echo ' <input type="submit" value="Next '.$remaining.' results" name="submit_inc" />'; }
             }
         echo '</form>';
-
         if (isset($view)) {
             echo '<table class="default"><tr><td>Title</td><td>Author</td><td>Genre</td><td>Grade Level</td><td>Words</td></tr>';
             foreach ($view as $key =>$value) {

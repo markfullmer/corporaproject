@@ -1478,20 +1478,34 @@ function word_list_form($language,$offset,$loan,$blacklist,$next) {
 	}
     $output .= '</form>';
     if (isset($_SESSION['uid'])) {
-	    $output .= '<form action="export-words.php" method="post">';
+
+	/*	$output .= '<form action="export.php" method="post">';
 	    $output .= '<input type="hidden" name="language" value="'.$language.'" />';
     	$output .= '<input type="hidden" name="id" value="all" />';
     	$output .= '<input type="hidden" name="loan" value="'.$loan.'" />';
     	$output .= '<input type="hidden" name="blacklist" value="'.$blacklist.'" />';
 		$output .= '<input type="submit" value="Export records to spreadsheet" name="export" />';
-    	$output .= '</form></div>';
+    	$output .= '</form>';    */	
+    	$values['type'] = 'Export all words';
+    	if (isset($_REQUEST['language'])) {
+			$values['language'] = $_REQUEST['language'];
+		}
+		else { $values['language'] = '24'; }
+		$values['total'] = count_values('word','language',$values['language'],$db);
+    	$values['batch'] = '1000';
+    	$values['message'] = "Your export is ready. <a href=\'includes/export.xls\'>Download now</a>";
+    	$output .= ahah($values);
+    	$output .= '</div>';
     }	
+
 	return $output;
 }
-function ahah($type,$total) {
-	echo '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$type.'&total='.$total.'\'),checker('.$total.')">'.$type.'</button>
-		<progress id="progressBar" value="0" max="'.$total.'" class="hide"></progress>
-		<span id="progress" class="hide"><span id="finished">0</span> out of '.$total.'</span>';
-	echo '<div id="result"></div>';
+function ahah($values) {
+	if (empty($values['language'])) { $values['langugage'] = 'all'; }
+	$output = '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$values['type'].'&total='.$values['total'].'&batch='.$values['batch'].'&language='.$values['language'].'\'),checker('.$values['total'].',\''.$values['message'].'\')">'.$values['type'].'</button>
+		<progress id="progressBar" value="0" max="'.$values['total'].'" class="hide"></progress>
+		<span id="progress" class="hide"><span id="finished">0</span> out of '.$values['total'].'</span>';
+	$output .= '<div id="result"></div>';
+	return $output;
 }
 ?>
