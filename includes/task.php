@@ -1,6 +1,6 @@
 <?php 
 session_start();
-if ($_SESSION['uid'] != '1') {
+if (empty($_SESSION['uid'])) {
 	die();
 }
 include('./../functions/functions.php');
