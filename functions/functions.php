@@ -844,6 +844,57 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	if (isset($result)) { return $result; }
 	else { echo 'No hits match your criteria.'; }
 }
+function select_frequent_words_unlimited($language,$offset,$limit,$order,$english_loan,$blacklist,$db) {
+	$language_condition = 'language IN';
+	if ($language == '0') { $language_condition = 'language NOT IN'; }
+	if ($language == 'all' || $language == '0') { 
+		$language_array = get_name('all','language',$db);
+		$keys = array_keys($language_array);
+		$language_ids = join(',',$keys);
+		if ($language == 'all') { $language_ids .=',0'; }
+	}
+	else { $language_ids = $language; }
+	if ($english_loan == 'no') {
+		$eng_filter = "AND englishword <> '1'";
+	}
+	else { $eng_filter = ''; }
+	//else { $eng_filter = "AND englishword = '1'";}
+	if ($blacklist == 'no') {
+		$black_filter = "AND blacklist <> '1'";
+	}
+	$count_limit = 'AND count > 0';
+	$sql = "SELECT id FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
+   	$statement = $db->prepare($sql);
+	$statement->execute(array());
+	$total_count = $statement->rowCount();
+	if ($total_count > 10000) {
+		$count_limit = 'AND count > 1';
+	}
+	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
+   	$statement = $db->prepare($sql);
+	$statement->execute(array());
+	$names = array();
+	$inc = 1+$offset;
+    while ($row = $statement->fetch()) {
+    	if (!in_array($row['name'],$names)) {
+	    	$names[] = $row['name'];
+	    	$inc++;
+	    	$key = $row['id'];
+    		$result[$inc]['id'] = $row['id'];
+    		$result[$inc]['name'] = $row['name'];
+			$result[$inc]['count'] = $row['count'];
+			$result[$inc]['language'] = $row['language'];
+			$result[$inc]['pos'] = $row['pos'];
+			$result[$inc]['postwo'] = $row['postwo'];
+			$result[$inc]['definition'] = $row['definition'];
+			$result[$inc]['sample_sentence'] = $row['sample_sentence'];
+			$result[$inc]['english_equivalent'] = $row['english_equivalent'];
+			$result[$inc]['standard_spelling'] = $row['standard_spelling'];
+		}
+	}
+	if (isset($result)) { return $result; }
+	else { echo 'No hits match your criteria.'; }
+}
 function select_texts($language,$genre,$offset,$limit,$order,$readability,$filter,$db) {
 	$language_condition = 'language IN';
 	$genre_condition = 'genre IN';
@@ -1096,6 +1147,7 @@ function sentence_count($input) {
 function statistical_analysis_computations($result,$db,$language_id) {
 	if (isset($result)) {
 	$total = count($result);
+	$total_categorized = 0;
 	$language = select_single_value('language',$language_id,'name',$db);
 	if (empty($language)) { $language = 'all languages'; }
 	$output = 'Total words analyzed in '.$language.':'. $total;
@@ -1107,7 +1159,8 @@ function statistical_analysis_computations($result,$db,$language_id) {
 			$pronoun = strpos($posone,'pronoun');
 			$determiner = strpos($posone,'determiner');
 			$numeral = strpos($posone,'numeral');
-			if ($value['pos'] == '0') {$major['uncategorized'][] = $value['name']; }
+			$total_categorized++;
+			if ($value['pos'] == '0') {$major['uncategorized'][] = $value['name']; $total_categorized = $total_categorized-1;}
 			elseif ($clitic !== false) { $major['clitic'][] = $value['name']; }
 			elseif ($linker !== false) { $major['linker'][] = $value['name']; }
 			elseif ($pronoun !== false) { $major['pronoun'][] = $value['name']; }
@@ -1125,10 +1178,15 @@ function statistical_analysis_computations($result,$db,$language_id) {
 		$output .= '<h2>Major Parts of Speech</h2>';
 		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
 		foreach ($major_counts as $name => $count) {
-			$inc = $inc+$count;
-			$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.($count/$total*100).'</td></tr>';
+			if ($name != 'uncategorized') {
+				$inc = $inc+$count;
+				$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.number_format(($count/$total_categorized*100),1).'</td></tr>';
+			}
+			else {
+				$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>N/A</td></tr>';
+			}
 		}
-		$output .= '<tr><td><b>Total</b></td><td>'.$inc.'</td><td>'.($inc/$total*100).'</td></tr>';
+		$output .= '<tr><td><b>Total</b></td><td>'.$inc.'</td><td>'.number_format(($inc/$total_categorized*100),1).'</td></tr>';
 		$output .= '</tbody></table><br />';
 	}
 	if (isset($pos)) { 
@@ -1140,7 +1198,7 @@ function statistical_analysis_computations($result,$db,$language_id) {
 		$output .= '<table class="default"><tbody><tr><td>Part of Speech</td><td>Occurrences</td><td>Percentage</td>';
 		foreach ($pos_count as $name => $count) {
 			if ($name != '') {
-				$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.($count/$total*100).'</td></tr>';
+				$output .= '<tr><td>'.$name.'</td><td>'.$count.'</td><td>'.number_format(($count/$total_categorized*100),1).'</td></tr>';
 			}
 		}
 		$output .= '</tbody></table>';
@@ -1205,7 +1263,7 @@ function statistical_analysis_results($db) {
 				if ($_POST['number'] > 10000) { $_POST['number'] = 10000; }
 				if (empty($_POST['blacklist'])) { $_POST['blacklist'] = 'no'; }
 				if (empty($_POST['loan'])) { $_POST['loan'] = 'no'; }			
-				$result = select_frequent_words($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
+				$result = select_frequent_words_unlimited($_POST['language'],0,$_POST['number'],'count',$_POST['loan'],'no',$db);
 				$output = 'Words analyzed: '.count($result).'<br />';
 				$output = statistical_analysis_computations($result,$db,$_POST['language']);
 			}
