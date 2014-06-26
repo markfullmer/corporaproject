@@ -15,7 +15,7 @@
         <ul>
             <li class="active"><a href="./index.php">Home</a></li>
             <li><a href="./index.php?type=article&id=1">About</a></li>
-            <li class="dropdown" tabindex="0"><a href="#">Words</a>
+            <li class="dropdown" tabindex="0"><a href="./index.php?type=word&id=all">Words</a>
                 <ul class="dropdown-menu">
                     <li><a href="./index.php?type=word&id=all">Frequency Lists</a></li>
                     <li><a href="./index.php?type=semantic&id=all">Semantic Lists</a></li>

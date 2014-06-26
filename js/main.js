@@ -2,7 +2,7 @@ function _(el) {
 	return document.getElementById(el); 
 }
 
-function checker(total) {
+function checker(total,message) {
 setInterval(function(){
 	if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
   		xmlhttp=new XMLHttpRequest();
@@ -10,7 +10,7 @@ setInterval(function(){
 	else {	// code for IE6, IE5
   		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
   	}
-  	xmlhttp.open("GET","includes/ahah.php",true);
+  xmlhttp.open("GET","includes/ahah.php",true);
 	xmlhttp.send();
 	xmlhttp.onreadystatechange=function() {
   		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
@@ -27,7 +27,7 @@ setInterval(function(){
     		_("progress").className = "hide";
     	} 
     	if (xmlhttp.responseText == total ) {
-    		_("result").innerHTML = "Update completed successfully!";
+    		_("result").innerHTML = message;
     	}	
   	}
 

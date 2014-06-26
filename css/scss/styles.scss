@@ -71,7 +71,7 @@ nav a {
 	text-decoration:none; 
 	color:$light-color;
 	background:$background-color;
-	@include heavy-font;
+	@include normal-font;
 	padding:1px 3px 0px 3px;
 }
 nav ul li a:hover {

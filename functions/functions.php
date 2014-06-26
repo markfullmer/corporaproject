@@ -811,7 +811,6 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	if ($blacklist == 'no') {
 		$black_filter = "AND blacklist <> '1'";
 	}
-	else { $black_filter = "AND blacklist = '1'";}
 	$count_limit = 'AND count > 0';
 	$sql = "SELECT id FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
@@ -823,18 +822,24 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
 	$statement->execute(array());
+	$names = array();
+	$inc = 1+$offset;
     while ($row = $statement->fetch()) {
-    	$key = $row['id'];
-    	$result[$key]['id'] = $row['id'];
-    	$result[$key]['name'] = $row['name'];
-		$result[$key]['count'] = $row['count'];
-		$result[$key]['language'] = $row['language'];
-		$result[$key]['pos'] = $row['pos'];
-		$result[$key]['postwo'] = $row['postwo'];
-		$result[$key]['definition'] = $row['definition'];
-		$result[$key]['sample_sentence'] = $row['sample_sentence'];
-		$result[$key]['english_equivalent'] = $row['english_equivalent'];
-		$result[$key]['standard_spelling'] = $row['standard_spelling'];
+    	if (!in_array($row['name'],$names) && $inc < 1001+$offset) {
+	    	$names[] = $row['name'];
+	    	$inc++;
+	    	$key = $row['id'];
+    		$result[$inc]['id'] = $row['id'];
+    		$result[$inc]['name'] = $row['name'];
+			$result[$inc]['count'] = $row['count'];
+			$result[$inc]['language'] = $row['language'];
+			$result[$inc]['pos'] = $row['pos'];
+			$result[$inc]['postwo'] = $row['postwo'];
+			$result[$inc]['definition'] = $row['definition'];
+			$result[$inc]['sample_sentence'] = $row['sample_sentence'];
+			$result[$inc]['english_equivalent'] = $row['english_equivalent'];
+			$result[$inc]['standard_spelling'] = $row['standard_spelling'];
+		}
 	}
 	if (isset($result)) { return $result; }
 	else { echo 'No hits match your criteria.'; }
@@ -1387,7 +1392,7 @@ function word_array($input) {
 	$output = array_count_values($c);
 	return $output;
 }
-function word_list_controller($db) {
+function word_list_controller() {
 	if (isset($_REQUEST['language'])) { $language = $_REQUEST['language']; }
 	else { $language = 'all'; }
 	if (isset($_REQUEST['next'])) { $offset = $_REQUEST['offset']+1000; }
@@ -1396,13 +1401,15 @@ function word_list_controller($db) {
 	else { $loan = 'no'; }
 	if (isset($_REQUEST['blacklist'])) { $blacklist = 1; }
 	else { $blacklist = 'no'; }
-	return word_list_results($db,$language,$offset,$loan,$blacklist);
+	if (empty($_REQUEST['language'])) { $language = '24'; }
+	return word_list_results($language,$offset,$loan,$blacklist);
 }
-function word_list_results($db,$language,$offset,$loan,$blacklist) {
-	$results = select_frequent_words($language,$offset,1000,'count',$loan,$blacklist,$db);
-	if (count($results) == 1000) { $next = true; }
+function word_list_results($language,$offset,$loan,$blacklist) {
+	global $db;
+	$results = select_frequent_words($language,$offset,1100,'count',$loan,$blacklist,$db);
+	if (count($results) > 999) { $next = true; }
 	else { $next = false; }
-	$output = word_list_form($db,$language,$offset,$loan,$blacklist,$next);
+	$output = word_list_form($language,$offset,$loan,$blacklist,$next);
 	if (isset($results)) {
 		$languages = get_name('all','language',$db);
 		$pos = get_name('all','pos',$db);
@@ -1451,9 +1458,9 @@ function word_list_results($db,$language,$offset,$loan,$blacklist) {
     }
 	return $output;
 }
-function word_list_form($db,$language,$offset,$loan,$blacklist,$next) {
-	$output = '<div id="word-list-form">
-	<span class="subtext">Displays words with 2 or more occurrences in the corpus.</span>
+function word_list_form($language,$offset,$loan,$blacklist,$next) {
+	global $db;
+	$output = '<div id="word-list-form">	
 	<form action="index.php?type=word" method="post">';
     $output .= better_term_dropdown('language',$language,$db);
     $output .= '<input type="hidden" name="id" value="all" />';
@@ -1465,25 +1472,40 @@ function word_list_form($db,$language,$offset,$loan,$blacklist,$next) {
     if ($blacklist == 1) { $output .= 'checked="checked"'; }
     $output .= ' /> Include blacklisted words';
     $output .= '<br /><input type="submit" value="Filter" name="submit" />';
+    $output .= ' <span class="subtext">Displays words with 2 or more occurrences in the corpus.</span>';
     if ($next) {
 	    $output .= '<input id="search-next" type="submit" value="Next 1000 results" name="next" />'	;
 	}
     $output .= '</form>';
     if (isset($_SESSION['uid'])) {
-	    $output .= '<form action="export-words.php" method="post">';
+
+	/*	$output .= '<form action="export.php" method="post">';
 	    $output .= '<input type="hidden" name="language" value="'.$language.'" />';
     	$output .= '<input type="hidden" name="id" value="all" />';
     	$output .= '<input type="hidden" name="loan" value="'.$loan.'" />';
     	$output .= '<input type="hidden" name="blacklist" value="'.$blacklist.'" />';
 		$output .= '<input type="submit" value="Export records to spreadsheet" name="export" />';
-    	$output .= '</form></div>';
+    	$output .= '</form>';    */	
+    	$values['type'] = 'Export all words';
+    	if (isset($_REQUEST['language'])) {
+			$values['language'] = $_REQUEST['language'];
+		}
+		else { $values['language'] = '24'; }
+		$values['total'] = count_values('word','language',$values['language'],$db);
+    	$values['batch'] = '1000';
+    	$values['message'] = "Your export is ready. <a href=\'includes/export.xls\'>Download now</a>";
+    	$output .= ahah($values);
+    	$output .= '</div>';
     }	
+
 	return $output;
 }
-function ahah($type,$total) {
-	echo '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$type.'&total='.$total.'\'),checker('.$total.')">'.$type.'</button>
-		<progress id="progressBar" value="0" max="'.$total.'" class="hide"></progress>
-		<span id="progress" class="hide"><span id="finished">0</span> out of '.$total.'</span>';
-	echo '<div id="result"></div>';
+function ahah($values) {
+	if (empty($values['language'])) { $values['langugage'] = 'all'; }
+	$output = '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$values['type'].'&total='.$values['total'].'&batch='.$values['batch'].'&language='.$values['language'].'\'),checker('.$values['total'].',\''.$values['message'].'\')">'.$values['type'].'</button>
+		<progress id="progressBar" value="0" max="'.$values['total'].'" class="hide"></progress>
+		<span id="progress" class="hide"><span id="finished">0</span> out of '.$values['total'].'</span>';
+	$output .= '<div id="result"></div>';
+	return $output;
 }
 ?>

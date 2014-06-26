@@ -1,8 +1,8 @@
     <footer>
         <?php 
         if ($_SESSION['uid'] == '1') {
-            ahah('wordcount_reset','630');
-            //ahah('words_in_texts','675');
+            //ahah('wordcount_reset','630','10');
+            //ahah('words_in_texts','675','10');
         }
         ?>
         <div id="copyright">
