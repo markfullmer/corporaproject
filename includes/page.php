@@ -39,6 +39,9 @@ echo '>';
 if ($type == 'map') {
     echo map();
 }
+if ($type == 'sentence') {
+    echo sentence_controller();
+}
 if ($type == 'statistical') {
         echo statistical_analysis_controller($db);
     }
