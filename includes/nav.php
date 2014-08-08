@@ -19,6 +19,7 @@
                 <ul class="dropdown-menu">
                     <li><a href="./index.php?type=word&id=all">Frequency Lists</a></li>
                     <li><a href="./index.php?type=semantic&id=all">Semantic Lists</a></li>
+                    <li><a href="./index.php?type=sentence&id=all">Phrase Search</a></li>
                     <li><a href="./index.php?type=statistical&id=all">Statistical Analysis</a></li>
                     <li><a href="./index.php?type=map">Geographical Word Map</a></li>
                 </ul>

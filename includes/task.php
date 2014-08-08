@@ -23,7 +23,6 @@ else {
 $offset = '0';
 $values = array();
 $done = false;
-
 // Prepare the task runner
 if ($_GET['type'] == 'Export all words') {
 	$header = array("Word","Count","Part(s) of Speech","Meaning","Sample Sentence");
@@ -51,7 +50,6 @@ while (!$done) {
 	$q->execute(array(':offset' => $progress,':id' => '1')); 
 	$values['limit'] = $limit;
 	$values['offset'] = $offset;
-
 	// Execute the task
 	task($values);
 
@@ -98,6 +96,38 @@ function task($values) {
     	while ($row = $statement->fetch()) { 
     		process_text($row['id'],$db,'text',$row['name'],$row['content'],$row['language'],$row['author'],$row['year'],$row['genre'],'Update');
     	}
+	}
+	if ($_GET['type'] == 'sentence') {
+		/*$words = array();
+		$sql = 'SELECT id,content,language FROM sentences LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
+		$statement = $db->prepare($sql);
+		$statement->execute(array());
+		while ($row = $statement->fetch()) { 
+			$word_array = explode(' ',$row['content']);
+			foreach ($word_array as $word) {
+				if ($word != '' && $word != '' && $word != null) {
+					$query = "SELECT sentencelist FROM word WHERE language = :language AND name = :name";
+					$st = $db->prepare($query);
+					$st->execute(array(':language'=>$row['language'],':name'=>$word));
+					while ($res = $st->fetch()) { 
+						if (strlen($res['sentencelist']) < 5) { 
+							$sentences = array($row['id']); 
+							$output = serialize($sentences);
+						}
+						else {
+							$output = unserialize($res['sentencelist']);
+							$output = unserialize($output);
+							if (!in_array($row['id'],$output)) {
+								$output[] = $row['id'];
+							}
+						}
+					$insert = 'UPDATE word SET sentencelist = :sentences WHERE name = :name AND language = :language';
+					$q = $db->prepare($insert);
+					$q->execute(array(':sentences' => serialize($output),':name' => $word,':language'=>$row['language'])); 
+					}
+				}
+			}
+		}*/
 	}
 	if ($_GET['type'] == 'wordcount_reset') {
 		$sql = 'SELECT id,word_list,language FROM text LIMIT '.$values['limit'].' OFFSET '.$values['offset'];

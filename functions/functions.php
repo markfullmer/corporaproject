@@ -1144,6 +1144,65 @@ function sentence_count($input) {
 	$count = count($sentencearray);
 	return $count;
 }
+function sentence_controller() {
+	$output = 'Something went wrong with this page. Try <a href="./index.php?type=sentence&id=all">reloading</a>.';
+	if (isset($_REQUEST['id'])) {
+		if ($_REQUEST['id'] == 'all') {
+			$output = sentence_form();
+		}
+		if ($_REQUEST['id'] == 'results') {
+			$output = sentence_results();
+		}
+	}
+	return $output;
+}
+function sentence_form() {
+	global $db;
+	/*$values['type'] = 'sentence';
+	$values['total'] = 1000;
+	$values['batch'] = 10;
+	$values['message'] = 'sentences updated correctly';
+	$output = ahah($values); */
+	$output .= '<h2>Search Phrases </h2>';
+	$output .= '<form id="sentence" method="post" action="./index.php?type=sentence&id=results">';
+	if (isset($_POST['language'])) { $language = $_POST['language']; }
+	else { $language = 'all'; }
+	if (isset($_POST['word'])) { $word = $_POST['word']; }
+	else { $word = ''; }
+	$output .= 'Language to search: '.better_term_dropdown('language',$language,$db);
+	$output .= '<br />Find phrases that contain <input type="text" value="' . $word . '" name="word"><br />';
+	$output .= '<span class="subtext">Search for a word or group of words. First 100 results will be displayed.</span>';	
+	$output .= '<br /><input type="submit" name="submit" value="Find Phrases"></form>';
+	return $output;
+}
+function sentence_results() {
+	global $db;
+	$output ='The form was not submitted correctly';
+	if (isset($_POST['submit'])) {
+		$output = sentence_form();
+		if ($_POST['submit'] == 'Find Phrases') {
+			$word = strtolower($_POST['word']);
+			if ($_POST['language'] == 'all') { 
+				$language_condition = ''; 
+				$arguments = array(':word'=>'% '.$word.' %');
+			}
+			else { 
+				$language_condition = 'AND language = :language'; 
+				$arguments = array(':word'=>'% '.$word.' %',':language'=>$_POST['language']);
+			}
+			$query = 'SELECT * FROM sentences WHERE content LIKE :word ' . $language_condition . ' LIMIT 100';
+			$st = $db->prepare($query);
+			$st->execute($arguments);
+			$inc = 1;
+			while ($res = $st->fetch()) { 
+				$res['content'] = str_replace(' '.$word.' ',' <span class="highlight">'.$word.'</span> ',$res['content']);
+				$output .= $inc.'. '.$res['content'].' (<a href="./index.php?type=text&id='.$res['text'].'">'.$res['text'].'</a>)<br />';
+				$inc++;
+			}
+		}
+	}
+	return $output;
+}
 function statistical_analysis_computations($result,$db,$language_id) {
 	if (isset($result)) {
 	$total = count($result);
@@ -1559,7 +1618,7 @@ function word_list_form($language,$offset,$loan,$blacklist,$next) {
 	return $output;
 }
 function ahah($values) {
-	if (empty($values['language'])) { $values['langugage'] = 'all'; }
+	if (empty($values['language'])) { $values['language'] = 'all'; }
 	$output = '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$values['type'].'&total='.$values['total'].'&batch='.$values['batch'].'&language='.$values['language'].'\'),checker('.$values['total'].',\''.$values['message'].'\')">'.$values['type'].'</button>
 		<progress id="progressBar" value="0" max="'.$values['total'].'" class="hide"></progress>
 		<span id="progress" class="hide"><span id="finished">0</span> out of '.$values['total'].'</span>';
