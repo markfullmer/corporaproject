@@ -946,13 +946,17 @@ function select_texts($language,$genre,$offset,$limit,$order,$readability,$filte
 }
 function search($word,$language,$db) {
 	$results = select_single_value('meta','8','content',$db); // get number of search results allowed
-	$word = strtolower($word);
+	$word = strtolower(strip_tags($word));
 	$inc = 0;
 	$exact = array();
-	if ($language == 'all') { $sql = 'SELECT * FROM word WHERE name ="'.$word.'"'; }
-	else { $sql = 'SELECT * FROM word WHERE name ="'.$word.'" AND language ='.$language; }
+	$sql = 'SELECT * FROM word WHERE name = :word';
+	$parameters = array(':word'=> $word);
+	if ($language != 'all') { 
+		$sql .= ' AND language = :language'; 
+		$parameters = array(':word'=>$word,':language'=> $language);
+	}
 	$q = $db->prepare($sql);
-	$q->execute(array());
+	$q->execute($parameters);
 	while ($row = $q->fetch()) {
 		$inc++;
 		$exact[$inc]['word'] = $row['name'];
@@ -981,17 +985,17 @@ function search($word,$language,$db) {
 			$exact[$inc]['english_equivalent'] = $row['english_equivalent'];
 		}
 	}
-	if ($inc < '1') { // Check for nonstandard spellings
+	if ($inc < '1') { // Still no results; Check for nonstandard spellings
 		$standard = '';
-		$sql = 'SELECT revised FROM spelling WHERE original ="'.$word.'"'; 
+		$sql = 'SELECT revised FROM spelling WHERE original = :word'; 
 		$q = $db->prepare($sql);
-		$q->execute(array());
+		$q->execute(array(':word' => $word));
 		while ($row = $q->fetch()) {
 			$standard = $row['revised'];
 		}
-		$sql = 'SELECT * FROM word WHERE name ="'.$standard.'"'; 
+		$sql = 'SELECT * FROM word WHERE name = :standard'; 
 		$q = $db->prepare($sql);
-		$q->execute(array());
+		$q->execute(array(':standard'=>$standard));
 		while ($row = $q->fetch()) {
 			$inc++;
 			$exact[$inc]['word'] = $row['name'];
@@ -1004,14 +1008,9 @@ function search($word,$language,$db) {
 			$exact[$inc]['english_equivalent'] = $row['english_equivalent'];
 		}
 	}
-	if ($inc < '1') { // No results
+	if ($inc < '1') { // Still no results
 		$outcome = 0;
-		if ($language != 'all') {
-			echo '<h3>Zero results found in the selected language.</h3>';
-		}
-		else {
-			echo '<h3>Zero results found in the dictionary.</h3>';
-		}
+			echo '<h3>No results found for <i>'.$word.'</i>.</h3>';
 	}
 	else { // There are results
 		if (isset($exact[2]) && ($exact[1]['language'] != $exact[2]['language'])) {
@@ -1035,30 +1034,27 @@ function search($word,$language,$db) {
 		 	echo '<br />';
 		}
 		else {
-			// query for alternate spellings
-			$sql = 'SELECT original FROM spelling WHERE revised ="'.$exact[1]['word'].'"'; 
-			$q = $db->prepare($sql);
-			$q->execute(array());
-			while ($row = $q->fetch()) {
-				$alternate[] = $row['original'];
-			}
-			$sql = 'SELECT revised FROM spelling WHERE original ="'.$word.'"'; 
-			$q = $db->prepare($sql);
-			$q->execute(array());
-			while ($row = $q->fetch()) {
-				$alternate[] = $row['revised'];
-			}
 			// print actual word
-			echo '<h3>'.$exact[1]['word'].' (';
 			$la = $exact[1]['language'];
 			$this_language = get_name($la,'language',$db);
-			echo $this_language[$la]['name'];
-			echo ')';
-			// give edit button for authorized users
-			if (check_language_permission($la,$db)) {
+			echo '<h3>'.$exact[1]['word'].' (' . $this_language[$la]['name'] . ')';
+			if (check_language_permission($la,$db)) { // give edit button for authorized users
 				echo ' <a href="edit.php?type=word&id='.$exact[1]['id'].'">edit</a>';
 			}
 			echo '</h3>';
+			// query for alternate spellings
+			$sql = 'SELECT original FROM spelling WHERE revised = :exact'; 
+			$q = $db->prepare($sql);
+			$q->execute(array(':exact'=> $exact[1]['word']));
+			while ($row = $q->fetch()) {
+				$alternate[] = $row['original'];
+			}
+			$sql = 'SELECT revised FROM spelling WHERE original = :word'; 
+			$q = $db->prepare($sql);
+			$q->execute(array(':word'=>$word));
+			while ($row = $q->fetch()) {
+				$alternate[] = $row['revised'];
+			}
 			// print alternate spellings, if any
 			if (isset($alternate)) {
 				$alternate = array_unique($alternate); 
@@ -1087,7 +1083,7 @@ function search($word,$language,$db) {
 			if ($exact[1]['definition'] != '') { echo '<br /><b>Meaning: </b>'.$exact[1]['definition'].'<br />'; }
 			elseif($exact[1]['english_equivalent'] != '' && $exact[1]['english_equivalent'] != '0' && $exact[1]['language'] != '25') { echo '<br /><b>English Equivalent: </b>'.$exact[1]['english_equivalent'].'<br />'; }
 			// Provide language equivalents
-			if ($exact[1]['english_equivalent'] != '') { 
+			if ($exact[1]['english_equivalent'] != '0' && $exact[1]['english_equivalent'] != '') { 
 				$sql = 'SELECT id,name,language FROM word WHERE english_equivalent =:english_equivalent AND language != :language'; 
 				$q = $db->prepare($sql);
 				$q->execute(array(':english_equivalent'=>$exact[1]['english_equivalent'],':language'=>$exact[1]['language']));
@@ -1111,7 +1107,8 @@ function search($word,$language,$db) {
                 $replace = ' <span class="highlight">'.$exact[1]['word'].'</span> ';
                 $sample_sentence = str_replace($find,$replace,$exact[1]['sample_sentence']);
                 echo $sample_sentence; 
-			}	
+			}
+			// Get similar words	
 			$sql = 'SELECT id,name,language FROM word WHERE name LIKE "%'.$word.'%" AND id <> '.$outcome.' LIMIT 50';
 			$q = $db->prepare($sql);
 			$q->execute(array());
@@ -1123,9 +1120,9 @@ function search($word,$language,$db) {
 				}
 				$percent = 0;
 				similar_text($word,$row['name'],$percent);
-				if ($percent > '50' && $word != $row['name']) {
+				if ($percent > '50' && $word != $row['name'] && $row['language'] != '0') {
 					$lang = select_single_value('language',$row['language'],'name',$db);
-					echo '<a href="./index.php?word_search='.$row['name'].'&language='.$row['language'].'">'.$row['name'].'</a> ('.$lang.') ';
+					echo '<a href="./index.php?word_search='.$row['name'].'&language='.$row['language'].'">'.$row['name'].'</a> ('.$lang.')<br />';
 				}
 			}
 		}
@@ -1158,11 +1155,11 @@ function sentence_controller() {
 }
 function sentence_form() {
 	global $db;
-	/*$values['type'] = 'sentence';
-	$values['total'] = 1000;
+	$values['type'] = 'sentence';
+	$values['total'] = 1800;
 	$values['batch'] = 10;
 	$values['message'] = 'sentences updated correctly';
-	$output = ahah($values); */
+	$output = ahah($values); 
 	$output .= '<h2>Search Phrases </h2>';
 	$output .= '<form id="sentence" method="post" action="./index.php?type=sentence&id=results">';
 	if (isset($_POST['language'])) { $language = $_POST['language']; }
