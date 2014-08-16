@@ -1155,11 +1155,13 @@ function sentence_controller() {
 }
 function sentence_form() {
 	global $db;
+	/*
 	$values['type'] = 'sentence';
 	$values['total'] = 1800;
 	$values['batch'] = 10;
 	$values['message'] = 'sentences updated correctly';
 	$output = ahah($values); 
+	*/
 	$output .= '<h2>Search Phrases </h2>';
 	$output .= '<form id="sentence" method="post" action="./index.php?type=sentence&id=results">';
 	if (isset($_POST['language'])) { $language = $_POST['language']; }
