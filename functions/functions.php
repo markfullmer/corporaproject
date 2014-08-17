@@ -1617,8 +1617,9 @@ function word_list_form($language,$offset,$loan,$blacklist,$next) {
 	return $output;
 }
 function ahah($values) {
+	if (empty($values['label'])) { $values['label'] = $values['type'];}
 	if (empty($values['language'])) { $values['language'] = 'all'; }
-	$output = '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$values['type'].'&total='.$values['total'].'&batch='.$values['batch'].'&language='.$values['language'].'\'),checker('.$values['total'].',\''.$values['message'].'\')">'.$values['type'].'</button>
+	$output = '<button value="Submit" onclick="runTask(\'includes/task.php?type='.$values['type'].'&total='.$values['total'].'&batch='.$values['batch'].'&language='.$values['language'].'\'),checker('.$values['total'].',\''.$values['message'].'\')">'.$values['label'].'</button>
 		<progress id="progressBar" value="0" max="'.$values['total'].'" class="hide"></progress>
 		<span id="progress" class="hide"><span id="finished">0</span> out of '.$values['total'].'</span>';
 	$output .= '<div id="result"></div>';

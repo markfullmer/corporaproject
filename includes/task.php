@@ -30,6 +30,17 @@ if ($_GET['type'] == 'Export all words') {
 	fputcsv($fp,$header);
 	fclose($fp);
 }
+if ($_GET['type'] == 'uncategorized_words') {
+	$sql = 'DELETE FROM word WHERE language = 0';
+	$q = $db->prepare($sql);
+	$q->execute(array());
+	$offset = 1;
+}
+if ($_GET['type'] == 'sentence') {
+	$sql = 'DELETE FROM sentences';
+	$q = $db->prepare($sql);
+	$q->execute(array());
+}
 if ($_GET['type'] == 'readability') {
 	$language = $_GET['language'];
 	$frequent_words = select_single_value('language',$language,'frequent_words',$db);
