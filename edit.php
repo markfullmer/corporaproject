@@ -35,6 +35,25 @@ if ($type == 'text' && (!in_array($id,array('add','all')))) {
 <article>
 <?php
 if ($type == 'language' && $id == 'all') { echo '<div class="message">If you delete a language, any texts or words already in the database will remain, but they will be listed as "Uncategorized".</div>'; }
+  if ($type == 'language') { // Add additional action buttons
+    
+    $sql = 'SELECT COUNT(*) FROM text';
+    $q = $db->prepare($sql);
+    $q->execute(array());
+    $values['total'] = $q->fetchColumn(); 
+    $values['type'] = 'sentence';
+    $values['label'] = 'Update sample sentence database';
+    $values['batch'] = 10;
+    $values['message'] = 'Sentences updated correctly';
+    echo ahah($values); 
+    $values['type'] = 'uncategorized_words';
+    $values['total'] = 1;
+    $values['label'] = 'Remove language-uncategorized words';
+    $values['batch'] = 1;
+    $values['message'] = 'All uncategorized words removed from the database';
+    echo ahah($values);
+  } 
+
 ?>
   <form method="post" action="save.php">
 <?php         
@@ -59,7 +78,7 @@ if ($id == 'all') {
         echo '<br />';
       }
     }
-  }
+  } 
 }
 elseif ($type != 'meta') { $id = 'add'; }
 }
@@ -159,7 +178,6 @@ if ($type == 'word') {
   echo '/> This is an English loan word<br />';
   echo 'Standard spelling: <input type="text" name="standard_spelling" value="'.$data['standard_spelling'].'" placeholder="Leave blank if this is standard spelling" style="width:300px;" /><br />';
 }
-
 if ($type == 'language' && $status == 'Update') { 
   echo '<p>The following fields pertain to the '.$data['name'].' readability instrument. The generic formula for calculating grade level is: </p>'; 
   echo '<div class="code-box">Grade level = (sentences_constant*words_per_sentence) + (words_constant*(100-percent_frequent_words)) + 0.839</div>';
