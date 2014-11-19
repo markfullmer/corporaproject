@@ -50,7 +50,6 @@ if ($id == 'all') {
         readability_form($db);
     }
     if ($type == 'word') {
-        print_r($_SESSION);
         if (check_permissions($permission = array(3))) {
             echo word_list_controller($db);
         }
