@@ -1,5 +1,5 @@
 <?php session_start();
-$now = microtime(true); 
+$now = microtime(true);
 include('../functions/functions.php');
 include('../variables/variables.php');
 ?>
@@ -16,7 +16,7 @@ include('../variables/variables.php');
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="../css/reset.css">
         <link rel="stylesheet" href="../css/scss/styles.css">
-        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:600,400' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
         <body>
@@ -44,15 +44,15 @@ include('../variables/variables.php');
             <li><a href="../index.php?type=word&id=all">Words</a></li>
             <li><a href="../index.php?type=text&id=all">Texts</a></li>
             <li><a href="../index.php?type=article&id=3">Contact</a></li>
-            <?php 
-                if (isset($_SESSION['uid'])) { 
+            <?php
+                if (isset($_SESSION['uid'])) {
                     echo '<li class="dropdown" tabindex="0"><a href="#">Edit Website</a><ul class="dropdown-menu">';
                     $admin_menu = get_admin_menu($db);
-                    foreach ($admin_menu as $key => $value) { 
+                    foreach ($admin_menu as $key => $value) {
                     if (in_array($key,$_SESSION['permissions'])) { echo '<li><a href="../'.$value['url'].'">'.$value['name'].'</a></li>'; }
                     }
-                } 
-                ?>  
+                }
+                ?>
                 </ul>
             </li>
         </ul>
@@ -87,5 +87,5 @@ echo '<br />To confirm you really want to do this, type "YES" in the box: <input
 echo '<br /><input type="submit" name="submit" value="Restore" />';
 echo '</div>';
 echo '</form>';
-include('../includes/footer.php'); 
+include('../includes/footer.php');
 ?>
