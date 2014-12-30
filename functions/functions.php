@@ -24,6 +24,39 @@ function cleanData(&$str) {
     $str = preg_replace("/\r?\n/", "\\n", $str);
     if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"';
 }
+function cleanDatabase() {
+  // This is a function originally designed to remove the backslashes from the
+  // database. Can be used to recurse through the database for other purposes.
+  $sql = 'SELECT * FROM word';
+  $statement = $db->prepare($sql);
+  $statement->execute(array());
+  while ($row = $statement->fetch()) {
+    $sample_sentence = stripslashes($row['sample_sentence']);
+    $standard_spelling = stripslashes($row['standard_spelling']);
+    $definition = stripslashes($row['definition']);
+    $english_equivalent = stripslashes($row['english_equivalent']);
+    $id = $row['id'];
+    $name = stripslashes($row['name']);
+    $sql = 'UPDATE word SET name=:name,definition=:definition,sample_sentence=:sample_sentence,english_equivalent=:english_equivalent,standard_spelling=:standard_spelling WHERE id = :id';
+    $q = $db->prepare($sql);
+    $q->execute(array(':standard_spelling'=>$standard_spelling,':definition'=>$definition,':sample_sentence'=>$sample_sentence,':english_equivalent'=>$english_equivalent,':name'=>$name,':id'=>$id));
+    $inc++;
+  }
+  echo $inc;
+  $sql = 'SELECT * FROM text';
+  $statement = $db->prepare($sql);
+  $statement->execute(array());
+  while ($row = $statement->fetch()) {
+    $content = stripslashes($row['content']);
+    $id = $row['id'];
+    $sql = 'UPDATE text SET content=:content WHERE id = :id';
+    $q = $db->prepare($sql);
+    $q->execute(array(':content'=>$content,':id'=>$id));
+    $inc++;
+  }
+  echo $inc;
+}
+
 function clean_sentence($raw,$genre,$db) {
 	$raw = nl2br($raw);
 	$find = array('/\r/','/\n/','/\t/');
@@ -970,6 +1003,7 @@ function search($word,$language,$db) {
 		$exact[$inc]['postwo'] = $row['postwo'];
 		$exact[$inc]['sample_sentence'] = $row['sample_sentence'];
 		$exact[$inc]['english_equivalent'] = $row['english_equivalent'];
+    $exact[$inc]['standard_spelling'] = $row['standard_spelling'];
 	}
 	if ($inc < '1') { // No results; check if there are results in the "English Equivalent column"
 		if ($language == 'all') { $sql = 'SELECT * FROM word WHERE english_equivalent ="'.$word.'"'; }
@@ -986,6 +1020,7 @@ function search($word,$language,$db) {
 			$exact[$inc]['postwo'] = $row['postwo'];
 			$exact[$inc]['sample_sentence'] = $row['sample_sentence'];
 			$exact[$inc]['english_equivalent'] = $row['english_equivalent'];
+      $exact[$inc]['standard_spelling'] = $row['standard_spelling'];
 		}
 	}
 	if ($inc < '1') { // Still no results; Check for nonstandard spellings
@@ -1009,6 +1044,7 @@ function search($word,$language,$db) {
 			$exact[$inc]['postwo'] = $row['postwo'];
 			$exact[$inc]['sample_sentence'] = $row['sample_sentence'];
 			$exact[$inc]['english_equivalent'] = $row['english_equivalent'];
+      $exact[$inc]['standard_spelling'] = $row['standard_spelling'];
 		}
 	}
 	if ($inc < '1') { // Still no results
@@ -1045,6 +1081,10 @@ function search($word,$language,$db) {
 				echo ' <a href="edit.php?type=word&id='.$exact[1]['id'].'">edit</a>';
 			}
 			echo '</h3>';
+      // Show standard spelling
+      if (isset($exact[1]['standard_spelling'])) {
+        echo 'Standard spelling: ' . $exact[1]['standard_spelling'] . '<br />';
+      }
 			// query for alternate spellings
 			$sql = 'SELECT original FROM spelling WHERE revised = :exact';
 			$q = $db->prepare($sql);
