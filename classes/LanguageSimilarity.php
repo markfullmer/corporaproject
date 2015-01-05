@@ -10,12 +10,18 @@ class LanguageSimilarity {
 
   public function showResults() {
     if($_REQUEST['one'] != '' and $_REQUEST['two'] != '') {
-      similar_text($_REQUEST['one'],$_REQUEST['two'],$graphemic);
-      $meta_one=metaphone($_REQUEST['one']);
-      $meta_two=metaphone($_REQUEST['two']);
+      $one = htmlspecialchars($_REQUEST['one']);
+      $two = htmlspecialchars($_REQUEST['two']);
+      similar_text($one,$two,$graphemic);
+      $meta_one=metaphone($one);
+      $meta_two=metaphone($two);
       similar_text($meta_one,$meta_two,$phonemic);
       $this->results = '<b>Graphemic similarity:</b> ' . $graphemic . '<br />';
-      $this->results .= '<b>Phonemic similarity:</b> ' . $phonemic;
+      $this->results .= 'Percentile representation of the number of changes that need to be
+      made to individual letters to make the two strings identical.<br />';
+      $this->results .= '<b>Phonemic similarity:</b> ' . $phonemic . '<br />';
+      $this->results .= 'Percentile representation of the number of changes that need to be
+      made to individual letters to make the two strings sound identical.<br />';
       $this->results .='<br /><a href="/index.php?type=languagesimilarity">Back to input form</a>';
     }
     else {
@@ -30,7 +36,14 @@ class LanguageSimilarity {
       <br /><input type="submit" name="submit" value ="Check Similarity" />
       </form>
       ';
-    $this->results = $form;
+    $explanation = 'The above form allow you to calculate the graphemic and phonemic similarity of two words or texts. The table below shows various word similarity to the word "BABAYI"
+    <table class="default"><tr><th></th><th>Graphemic Similarity</th><th>Phonemic Similiarity</th></tr>
+    <tr><th>BABAYE (Alternate Spelling)</th><td>83</td><td>100</td></tr>
+    <tr><th>BABAE (Tagalog)</th><td>72</td><td>80</td></tr>
+    <tr><th>KABABAYEN (Plural)</th><td>66</td><td>75</td></tr>
+    <tr><th>DANDA (Inabaknon)</th><td>36</td><td>0</td></tr>
+    <tr><th>FEMALE (English)</th><td>16</td><td>0</td></tr></table>';
+    $this->results = $form . $explanation;
   }
 
   public function compareLanguages() {
@@ -97,7 +110,6 @@ class LanguageSimilarity {
     $ew = number_format(array_sum($stats['ew'])/1943,2);
     $es = number_format(array_sum($stats['es'])/1943,2);
     $ei = number_format(array_sum($stats['ei'])/1943,2);
-    similar_text("Assistance","Assistants",$percent);
     echo '<table class="default"><tr><th></th><th>Tagalog</th><th>Waray</th><th>Sugbuanon</th><th>Inabaknon</th><th>English</th></tr>';
     echo '<tr><th>Tagalog</th><td></td><td>'.$tw.'</td><td>'.$ts.'</td><td>'.$ti.'</td><td>'.$et.'</td></tr>';
     echo '<tr><th>Waray</th><td>'.$wt.'</td><td></td><td>'.$ws.'</td><td>'.$wi.'</td><td>'.$ew.'</td></tr>';
