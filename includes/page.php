@@ -6,6 +6,7 @@
     if ($type == 'semantic' && $id == 'all') { $data['name'] = 'Semantic Domains'; }
     if ($type == 'statistical') { $data['name'] = 'Statistical Analysis'; }
     if ($type == 'map') { $data['name'] = 'Map'; $id='all'; }
+    if ($type == 'languagesimilarity') { $data['name'] = 'LanguageSimilarity'; $id='all'; }
     $name = strtolower($data['name']);
     $name = ucwords($name);
     if ($type == 'text' && $id != 'all') {
@@ -38,6 +39,20 @@ echo '>';
 <?php
 if ($type == 'map') {
     echo map();
+}
+if ($type == 'languagesimilarity') {
+    include 'classes/LanguageSimilarity.php';
+    $similarity = new languageSimilarity();
+    if (isset($_REQUEST['submit'])) {
+      $similarity->showResults();
+    }
+    elseif (isset($_REQUEST['languages'])) {
+      $similarity->compareLanguages();
+    }
+    else {
+        $similarity->showForm();
+    }
+    echo $similarity->results;
 }
 if ($type == 'sentence') {
     echo sentence_controller();
