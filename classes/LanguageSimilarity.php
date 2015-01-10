@@ -36,7 +36,7 @@ class LanguageSimilarity {
       <br /><input type="submit" name="submit" value ="Check Similarity" />
       </form>
       ';
-    $explanation = 'The above form calculate the graphemic and phonemic similarity of two words or texts. The table below shows various word similarity to the word "BABAYI". The computations for these algorithms are based on the <a href="http://php.net/manual/en/function.metaphone.php">metaphone()</a> and <a href="http://php.net/manual/en/function.similar-text.php">similar_text()</a> functions.
+    $explanation = 'The above form calculates the graphemic and phonemic similarity of two words or texts. The table below shows various word similarity to the word "BABAYI". The computations for these algorithms are based on the <a href="http://php.net/manual/en/function.metaphone.php">metaphone()</a> and <a href="http://php.net/manual/en/function.similar-text.php">similar_text()</a> functions.
     <table class="default"><tr><th></th><th>Graphemic Similarity</th><th>Phonemic Similiarity</th></tr>
     <tr><th>BABAYE (Alternate Spelling)</th><td>83</td><td>100</td></tr>
     <tr><th>BABAE (Tagalog)</th><td>72</td><td>80</td></tr>
