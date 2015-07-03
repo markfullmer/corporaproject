@@ -1,3 +1,4 @@
+SetEnv PHPRC /home/markfull/public_html/languages/php.ini
 # Apache Configuration File
 
 # (!) Using `.htaccess` files slows down Apache, therefore, if you have access
@@ -542,3 +543,18 @@ FileETag None
 # <IfModule mod_headers.c>
 #    Header set Connection Keep-Alive
 # </IfModule>
+
+AddHandler application/x-httpd-php53 .php .php5 .php4 .php3
+
+<Files 403.shtml>
+order allow,deny
+allow from all
+</Files>
+
+deny from 213.239.211.141
+deny from 158.129.192.208
+deny from 78.46.174.55
+deny from 50.31.96.17
+deny from 46.151.53.
+deny from 142.54.165.154
+deny from 192.151.151.202
