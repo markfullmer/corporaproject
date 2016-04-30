@@ -126,6 +126,11 @@ function count_values($table,$criteria,$value,$db) {
     $result = $db->query($sql)->fetchAll();
     return count($result);
 }
+function count_limited_values($table,$criteria,$value,$db) {
+    $sql = "SELECT id FROM ".$table." WHERE ".$criteria."=".$value . " AND englishword <> '1' AND blacklist <> '1' AND count > 0 AND standard_spelling =''";
+    $result = $db->query($sql)->fetchAll();
+    return count($result);
+}
 function delete_basic($type,$id,$db) {
 	if ($type == 'language') {
 		$name = select_single_value('language',$id,'name',$db);
@@ -847,13 +852,13 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	if ($blacklist == 'no') {
 		$black_filter = "AND blacklist <> '1'";
 	}
-	$count_limit = 'AND count > 0';
+	$count_limit = 'AND count > 0 AND standard_spelling =""';
 	$sql = "SELECT id FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
 	$statement->execute(array());
 	$total_count = $statement->rowCount();
 	if ($total_count > 10000) {
-		$count_limit = 'AND count > 1';
+		$count_limit = 'AND count > 1 AND standard_spelling =""';
 	}
 	$sql = "SELECT * FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
@@ -898,7 +903,7 @@ function select_frequent_words_unlimited($language,$offset,$limit,$order,$englis
 	if ($blacklist == 'no') {
 		$black_filter = "AND blacklist <> '1'";
 	}
-	$count_limit = 'AND count > 0';
+	$count_limit = 'AND count > 0 AND standard_spelling =""';
 	$sql = "SELECT id FROM word WHERE ".$language_condition." (".$language_ids.") ".$count_limit." ".$black_filter." ".$eng_filter." ORDER BY ".$order." DESC LIMIT ".$limit." OFFSET ".$offset;
    	$statement = $db->prepare($sql);
 	$statement->execute(array());
@@ -1649,8 +1654,11 @@ function word_list_form($language,$offset,$loan,$blacklist,$next) {
     	if (isset($_REQUEST['language'])) {
 			$values['language'] = $_REQUEST['language'];
 		}
-		else { $values['language'] = '24'; }
-		$values['total'] = count_values('word','language',$values['language'],$db);
+		else {
+      $values['language'] = '24';
+    }
+		  $values['total'] = count_limited_values('word','language',$values['language'],$db);
+
     	$values['batch'] = '1000';
     	$values['message'] = "Your export is ready. <a href=\'includes/export.xls\'>Download now</a>";
     	$output .= ahah($values);

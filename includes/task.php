@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 if (empty($_SESSION['uid'])) {
 	die();
@@ -54,11 +54,11 @@ if ($_GET['type'] == 'readability') {
 while (!$done) {
 	if ($offset > $total) { $progress = $total; }
 	else { $progress = $offset; }
-	
+
 	// Update the progress table
 	$sql = 'UPDATE progress SET text_updater = :offset WHERE id = :id';
 	$q = $db->prepare($sql);
-	$q->execute(array(':offset' => $progress,':id' => '1')); 
+	$q->execute(array(':offset' => $progress,':id' => '1'));
 	$values['limit'] = $limit;
 	$values['offset'] = $offset;
 	// Execute the task
@@ -72,17 +72,17 @@ while (!$done) {
 function task($values) {
 	global $db;
 	if ($_GET['type'] == 'Export all words') {
-		$result = select_frequent_words($_GET['language'],$values['offset'],$values['limit'],'count',false,false,$db);
+		$result = select_frequent_words($_GET['language'],$values['offset'],$values['limit'],'count','no','no',$db);
 		$pos = get_name('all','pos',$db);
 		foreach ($result as $key => $value) {
   			$pos_array = array();
-  			if ($value['pos'] != 0) { 
+  			if ($value['pos'] != 0) {
     			$one = $value['pos'];
-    			$pos_array[] = $pos[$one]['name']; 
+    			$pos_array[] = $pos[$one]['name'];
   			}
-  			if ($value['postwo'] != 0) { 
+  			if ($value['postwo'] != 0) {
     			$two = $value['postwo'];
-    			$pos_array[] = $pos[$two]['name']; 
+    			$pos_array[] = $pos[$two]['name'];
   			}
   			$parts_of_speech = join('/ ',$pos_array);
   			$altered[$key]['name'] = $value['name'];
@@ -96,7 +96,7 @@ function task($values) {
 			array_walk($value, 'cleanData');
 			fputcsv($fp, $value);
 		}
-		fclose($fp);		 
+		fclose($fp);
 	}
 	if ($_GET['type'] == 'words_in_texts') {
 		// Get the data
@@ -104,7 +104,7 @@ function task($values) {
    		$statement = $db->prepare($sql);
 		$statement->execute(array());
 		// Perform the action
-    	while ($row = $statement->fetch()) { 
+    	while ($row = $statement->fetch()) {
     		process_text($row['id'],$db,'text',$row['name'],$row['content'],$row['language'],$row['author'],$row['year'],$row['genre'],'Update');
     	}
 	}
@@ -112,7 +112,7 @@ function task($values) {
 		$sql = "SELECT id,content,genre,language FROM text LIMIT ".$values['limit']." OFFSET ".$values['offset'];
 		$statement = $db->prepare($sql);
 		$statement->execute(array());
-		while ($row = $statement->fetch()) { 
+		while ($row = $statement->fetch()) {
 			$clean = clean_sentence($row['content'],$row['genre'],$db);
 			$sentence_array = explode('.',$clean);
 			foreach ($sentence_array as $sentence) {
@@ -129,7 +129,7 @@ function task($values) {
    		$statement = $db->prepare($sql);
 		$statement->execute(array());
 		// Perform the action
-    	while ($row = $statement->fetch()) { 
+    	while ($row = $statement->fetch()) {
     		// Update Existing Words
     		$existing = array();
     		$word_list = unserialize($row['word_list']);
@@ -139,7 +139,7 @@ function task($values) {
 			$sql = 'SELECT name,count FROM word WHERE name IN ('.$comma_separated.') AND language = :language';
 			$q = $db->prepare($sql);
 			$q->execute(array(':language'=>$row['language']));
-			while ($vals = $q->fetch()) { 
+			while ($vals = $q->fetch()) {
 				$id = $vals['name'];
 				$existing[$id] = $vals['count'];
 			}
@@ -164,24 +164,24 @@ function task($values) {
 		$sql = 'SELECT id,word_list,words_per_sentence FROM text WHERE language ='.$_GET['language'].' LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
    		$statement = $db->prepare($sql);
 		$statement->execute(array());
-		
+
 		// do the math
-    	while ($row = $statement->fetch()) { 
+    	while ($row = $statement->fetch()) {
     		$id = $row['id'];
     		$word_array_list = unserialize($row['word_list']);
-    		$words_per_sentence = $row['words_per_sentence']; 
+    		$words_per_sentence = $row['words_per_sentence'];
 			foreach ($word_array_list as $key => $value) {
 				if ($key != '') {
-					if (in_array($key,$values['frequent_word_array'])) { 
-						$frequent = $frequent+$value; 
+					if (in_array($key,$values['frequent_word_array'])) {
+						$frequent = $frequent+$value;
 					}
 					$total = $total+$value;
 				}
 			}
 			$percent_frequent_words = $frequent/$total*100;
-			$readability[$id] = ($values['sentences_constant']*$words_per_sentence)+($values['words_constant']*(100-$percent_frequent_words)) +0.839; 
+			$readability[$id] = ($values['sentences_constant']*$words_per_sentence)+($values['words_constant']*(100-$percent_frequent_words)) +0.839;
 	    }
-	    
+
 	    // perform the update
 	    $ids = array_keys($readability);
     	$id_list = implode("','",$ids);
