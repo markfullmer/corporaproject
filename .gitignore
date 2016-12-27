@@ -9,6 +9,8 @@ php_errorlog
 *.log
 
 includes/export.*
+php.ini
+.ftpquota
 
 # Can also ignore all directories and files in a directory.
 variables/variables.php
