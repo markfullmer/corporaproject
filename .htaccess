@@ -329,10 +329,10 @@ AddDefaultCharset utf-8
 # prevent `https://www.example.com` when your certificate only allows
 # `https://secure.example.com`.
 
-# <IfModule mod_rewrite.c>
-#    RewriteCond %{SERVER_PORT} !^443
-#    RewriteRule ^ https://example-domain-please-change-me.com%{REQUEST_URI} [R=301,L]
-# </IfModule>
+<IfModule mod_rewrite.c>
+    RewriteCond %{SERVER_PORT} !^443
+    RewriteRule ^ https://corporaproject.org%{REQUEST_URI} [R=301,L]
+</IfModule>
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -345,9 +345,9 @@ AddDefaultCharset utf-8
 # server via HTTPS, regardless of what the users type in the address bar.
 # http://www.html5rocks.com/en/tutorials/security/transport-layer-security/
 
-# <IfModule mod_headers.c>
-#    Header set Strict-Transport-Security max-age=16070400;
-# </IfModule>
+<IfModule mod_headers.c>
+   Header set Strict-Transport-Security max-age=16070400;
+</IfModule>
 
 # ------------------------------------------------------------------------------
 # | Server software information                                                |
