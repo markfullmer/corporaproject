@@ -1,8 +1,11 @@
 html {
-  font: 400 1.1em "Open Sans", sans serif; }
+  font: 400 1.1em "Open Sans", sans serif;
+}
 
 body {
-  margin: 0 auto; }
+  margin: 0 auto;
+  line-height:1.2em;
+}
 
 header {
   background: #660000; }
