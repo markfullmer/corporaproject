@@ -137,7 +137,8 @@ article header h2, aside h2 {
   width: 97%; }
 
 .highlight {
-  background-color: #ffff00; }
+  border-bottom: 2px solid red;
+}
 
 .subtext {
   font-size: 0.8em;
