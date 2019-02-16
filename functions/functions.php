@@ -1237,7 +1237,7 @@ function sentence_results() {
 				$language_condition = 'AND language = :language';
 				$arguments = array(':word'=>'% '.$word.' %',':language'=>$_POST['language']);
 			}
-			$query = 'SELECT * FROM sentences WHERE content LIKE :word ' . $language_condition . ' LIMIT 100';
+			$query = 'SELECT * FROM sentences WHERE content LIKE :word ' . $language_condition . ' LIMIT 1000';
 			$st = $db->prepare($query);
 			$st->execute($arguments);
 			$inc = 1;
