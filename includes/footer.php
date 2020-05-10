@@ -12,7 +12,7 @@
         <?php 
         $meta = get_all('meta','1',$db); 
         echo $meta['content']; 
-        echo '<br />Loading time: '; echo microtime(true) - $now; 
+        echo '<br /><a href="https://markfullmer.com">Mark Fullmer</a>';
         ?>
         </div>
     </footer>
