@@ -1,11 +1,17 @@
+<?php
+
+/**
+ * @file
+ */
+?>
 <footer>
         <div id="copyright">
             <a href="http://www.ched.gov.ph/"><img src="./img/ched-logo.png"/></a>
             <a href="http://www.pnu.edu.ph/3ns/"><img src="./img/3ns-logo.jpg"/></a>
             <a href="http://www.lnu.edu.ph/"><img src="./img/lnu-logo.jpg" /></a>
-        <?php 
-        $meta = get_all('meta', '1', $db); 
-        echo $meta['content']; 
+        <?php
+        $meta = get_all('meta', '1', $db);
+        echo $meta['content'];
         echo '<br /><a href="https://markfullmer.com">Mark Fullmer</a>';
         ?>
         </div>

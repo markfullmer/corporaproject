@@ -1,5 +1,11 @@
-<?php session_start();
-$now = microtime(true);
+<?php
+
+/**
+ * @file
+ */
+
+session_start();
+$now = microtime(TRUE);
 require '../functions/functions.php';
 require '../../variables.php';
 ?>
@@ -11,7 +17,8 @@ require '../../variables.php';
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title><?php $meta = get_all('meta', '2', $db); echo $meta['content']; ?></title>
+        <title><?php $meta = get_all('meta', '2', $db);
+        echo $meta['content']; ?></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="../css/reset.css">
@@ -29,17 +36,20 @@ require '../../variables.php';
     <nav>
         <form class="navbar-form pull-right" method="post" action="../login.php">
             <?php
-            if (isset($_SESSION['uid'])) { echo '<a href="../login.php?logout=1">Log out</a></div>'; 
+            if (isset($_SESSION['uid'])) {
+              echo '<a href="../login.php?logout=1">Log out</a></div>';
             }
-            else { echo '
+            else {
+              echo '
             <input class="span2" type="text" name="email" placeholder="Email">
             <input class="span2" type="password" name="pass" placeholder="Password">
             <button type="submit" name="submit">Log in</button>
-            '; 
+            ';
             } ?>
         </form>
 
-    <h1><a href="../index.php"><?php $meta = get_all('meta', '2', $db); echo $meta['content']; ?></a></h1>
+    <h1><a href="../index.php"><?php $meta = get_all('meta', '2', $db);
+    echo $meta['content']; ?></a></h1>
         <ul>
             <li class="active"><a href="../index.php">Home</a></li>
             <li><a href="../index.php?type=article&id=1">About</a></li>
@@ -48,12 +58,13 @@ require '../../variables.php';
             <li><a href="../index.php?type=article&id=3">Contact</a></li>
             <?php
             if (isset($_SESSION['uid'])) {
-                echo '<li class="dropdown" tabindex="0"><a href="#">Edit Website</a><ul class="dropdown-menu">';
-                $admin_menu = get_admin_menu($db);
-                foreach ($admin_menu as $key => $value) {
-                    if (in_array($key, $_SESSION['permissions'])) { echo '<li><a href="../'.$value['url'].'">'.$value['name'].'</a></li>'; 
-                    }
+              echo '<li class="dropdown" tabindex="0"><a href="#">Edit Website</a><ul class="dropdown-menu">';
+              $admin_menu = get_admin_menu($db);
+              foreach ($admin_menu as $key => $value) {
+                if (in_array($key, $_SESSION['permissions'])) {
+                  echo '<li><a href="../' . $value['url'] . '">' . $value['name'] . '</a></li>';
                 }
+              }
             }
             ?>
                 </ul>
@@ -62,14 +73,16 @@ require '../../variables.php';
     </nav>
 </header>
 <?php
-function readlastline($file)
-{
-       $linecontent = " ";
-       $contents = file($file);
-       $linenumber = sizeof($contents)-1;
-       $linecontent = $contents[$linenumber];
-       unset($contents, $linenumber);
-       return $linecontent;
+/**
+ *
+ */
+function readlastline($file) {
+  $linecontent = " ";
+  $contents = file($file);
+  $linenumber = sizeof($contents) - 1;
+  $linecontent = $contents[$linenumber];
+  unset($contents, $linenumber);
+  return $linecontent;
 }
 $file = 'save.log';
 $last = readlastline($file);
@@ -77,13 +90,13 @@ $date = date('F j, Y', strtotime($last));
 echo '<div class="spaced-box">';
 echo '<h1>Backup this site</h1>';
 echo '<form action="backup.php" method="POST">';
-echo 'You last saved this website on '.$date;
+echo 'You last saved this website on ' . $date;
 echo '<br /><input type="submit" name="submit" value="Save" />';
 echo '</div>';
 echo '<div class="spaced-box">';
 echo '<h1>Restore this site to a previous version</h1>';
-echo '<p><input type="radio" name="restore" value="saved" /> Restore to the version saved on '.$date;
-echo '<br /><span class="subtext">All data you entered after '.$date.' will be lost</span></p>';
+echo '<p><input type="radio" name="restore" value="saved" /> Restore to the version saved on ' . $date;
+echo '<br /><span class="subtext">All data you entered after ' . $date . ' will be lost</span></p>';
 echo '<p><input type="radio" name="restore" value="original" /> Remove all data you created and revert to the original website';
 echo '<br /><span class="subtext">This will delete all texts & words you entered, but keep original data like parts of speech and genres.</span></p>';
 echo '<br />To confirm you really want to do this, type "YES" in the box: <input type="text" name="confirm" />';
@@ -91,4 +104,3 @@ echo '<br /><input type="submit" name="submit" value="Restore" />';
 echo '</div>';
 echo '</form>';
 require '../includes/footer.php';
-?>
