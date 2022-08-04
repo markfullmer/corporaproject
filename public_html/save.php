@@ -1,7 +1,7 @@
 <?php session_start();
 $now = microtime(true); 
 include('functions/functions.php');
-include('variables/variables.php');
+include('../variables.php');
 if (isset($_REQUEST['submit'])) {
 if (isset($_REQUEST['type'])) { $type = $_REQUEST['type']; }
 if (isset($_REQUEST['id'])) { $id = $_REQUEST['id']; }

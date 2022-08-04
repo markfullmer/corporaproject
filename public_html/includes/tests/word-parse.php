@@ -1,7 +1,7 @@
 <?php
 echo 'This is a helper function and must be uncommented to be used.';
 /*echo '<h2>Word Parse Test</h2>';
-include('../../variables/variables.php');
+include('../../../variables.php');
 include('../../functions/functions.php');
 
 $sql = "SELECT id,content FROM text WHERE content LIKE '%iba-iba%' LIMIT 0 , 5";

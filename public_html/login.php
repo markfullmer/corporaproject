@@ -1,5 +1,5 @@
 <?php session_start();
-include('variables/variables.php');
+include('../variables.php');
 if (isset($_GET['logout'])) {
 session_destroy();
 header('Location: ./index.php');

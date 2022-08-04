@@ -4,7 +4,7 @@ if (empty($_SESSION['uid'])) {
 	die();
 }
 include('./../functions/functions.php');
-include('./../variables/variables.php');
+include('./../../variables.php');
 
 echo 'helper script';
 if ($_GET['type'] == 'wordcount_reset') {

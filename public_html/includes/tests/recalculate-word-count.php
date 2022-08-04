@@ -2,7 +2,7 @@
 echo 'This is a helper function and must be uncommented to be used.';
 
 /*echo '<h2>Recalculate all Word counts</h2>';
-include('../../variables/variables.php');
+include('../../../variables.php');
 include('../../functions/functions.php');
 
 // empty count for all words

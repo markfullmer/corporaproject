@@ -2,7 +2,7 @@
 $now = microtime(true);
 date_default_timezone_set('America/Chicago');
 include('functions/functions.php');
-include('variables/variables.php');
+include('../variables.php');
 include('includes/header.php');
 include('includes/nav.php');
 if (isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'article'; $id = '2'; }

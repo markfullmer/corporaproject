@@ -1,6 +1,6 @@
 <?php
 
-include('variables/variables.php');
+include('../variables.php');
 
 $sql = array();
 

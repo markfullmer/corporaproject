@@ -1,6 +1,6 @@
 <?php
 if (isset($_REQUEST['submit'])) {
-    include('../variables/variables.php');
+    include('../../variables.php');
 	if ($_REQUEST['submit'] == 'Save') {
 		exec("mysqldump --user=".$dbuser." --password='".$dbpass."' ".$dbname." > saved_db.sql");
 		$file = 'save.log';

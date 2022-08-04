@@ -1,7 +1,7 @@
 <?php session_start();
 $now = microtime(true); 
 include('functions/functions.php');
-include('variables/variables.php');
+include('../variables.php');
 include('includes/header.php');
 include('includes/nav.php');
 if (empty($_SESSION['uid'])) { die('You do not have permission to access this page.'); }
