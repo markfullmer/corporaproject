@@ -1,0 +1,4 @@
+name: corporaproject
+recipe: lamp
+config:
+  webroot: .

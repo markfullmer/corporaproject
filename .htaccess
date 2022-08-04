@@ -1,4 +1,3 @@
-SetEnv PHPRC /home/markfull/public_html/languages/php.ini
 # Apache Configuration File
 
 # (!) Using `.htaccess` files slows down Apache, therefore, if you have access
@@ -329,10 +328,6 @@ AddDefaultCharset utf-8
 # prevent `https://www.example.com` when your certificate only allows
 # `https://secure.example.com`.
 
-<IfModule mod_rewrite.c>
-    RewriteCond %{SERVER_PORT} !^443
-    RewriteRule ^ https://corporaproject.org%{REQUEST_URI} [R=301,L]
-</IfModule>
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -543,8 +538,6 @@ FileETag None
 # <IfModule mod_headers.c>
 #    Header set Connection Keep-Alive
 # </IfModule>
-
-AddHandler application/x-httpd-php53 .php .php5 .php4 .php3
 
 <Files 403.shtml>
 order allow,deny
