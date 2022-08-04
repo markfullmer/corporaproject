@@ -2,6 +2,7 @@
 .DS_Store
 php_errorlog
 .sass-cache
+.well-known
 
 # Use wildcards as well
 *~
