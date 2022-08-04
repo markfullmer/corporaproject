@@ -97,7 +97,7 @@ function check_language_permission($item_language,$db) {
     $q = $db->prepare($sql);
     $q->execute(array());
     $row = $q->fetch();
-    $language_permission = $row['pid'];
+    $language_permission = $row['pid'] ?? '';
     if (isset($_SESSION['permissions'])) {
     	if (in_array($language_permission,$_SESSION['permissions'])) { return true; }
     }
@@ -125,7 +125,12 @@ function count_values($table,$criteria,$value,$db) {
     return count($result);
 }
 function count_limited_values($table,$criteria,$value,$db) {
-    $sql = "SELECT id FROM ".$table." WHERE ".$criteria."=".$value . " AND englishword <> '1' AND blacklist <> '1' AND count > 0 AND standard_spelling =''";
+	if ($criteria == 'language' && $value == 'all') {
+		$sql = "SELECT id FROM " . $table . " WHERE englishword <> '1' AND blacklist <> '1' AND count > 0 AND standard_spelling =''";
+	}
+	else {
+		$sql = "SELECT id FROM " . $table . " WHERE " . $criteria . "=" . $value . " AND englishword <> '1' AND blacklist <> '1' AND count > 0 AND standard_spelling =''";
+	}
     $result = $db->query($sql)->fetchAll();
     return count($result);
 }
@@ -690,7 +695,8 @@ function process_words($word_array_mod,$sentence_array,$language,$db) {
 	foreach ($existing_words as $word ) {
 		$count = $existing[$word]+$word_array_mod[$word];
     $sql .= sprintf("WHEN '%s' THEN %s ", $word, $count);
-    if($word==end(array_keys($existing))){
+		$keys = array_keys($existing);
+    if($word == end($keys)){
       $sql .= "END WHERE language = ".$language." AND name IN (".$comma_separated.")";
   		}
   	}
@@ -847,6 +853,7 @@ function select_frequent_words($language,$offset,$limit,$order,$english_loan,$bl
 	}
 	else { $eng_filter = ''; }
 	//else { $eng_filter = "AND englishword = '1'";}
+	$black_filter = '';
 	if ($blacklist == 'no') {
 		$black_filter = "AND blacklist <> '1'";
 	}
@@ -1079,7 +1086,9 @@ function search($word,$language,$db) {
 			// print actual word
 			$la = $exact[1]['language'];
 			$this_language = get_name($la,'language',$db);
-			echo '<h3>'.$exact[1]['word'].' (' . $this_language[$la]['name'] . ')';
+			if (isset($exact[1]['word']) && isset($this_language[$la]['name'])) {
+				echo '<h3>' . $exact[1]['word'] . ' (' . $this_language[$la]['name'] . ')';
+			}
 			if (check_language_permission($la,$db)) { // give edit button for authorized users
 				echo ' <a href="edit.php?type=word&id='.$exact[1]['id'].'">edit</a>';
 			}
@@ -1179,7 +1188,10 @@ function select_single_value($table,$id,$column,$db) {
 	$q = $db->prepare($sql);
 	$q->execute(array(':id'=>$id));
 	$row = $q->fetch();
-	return $row[$column];
+	if (isset($row[$column])) {
+		return $row[$column];
+	}
+	return '';
 }
 function sentence_count($input) {
 	$sentencemarkers = array('. ','! ','? ','; ');
@@ -1201,6 +1213,7 @@ function sentence_controller() {
 }
 function sentence_form() {
 	global $db;
+	$output = '';
 	/*
 	$values['type'] = 'sentence';
 	$values['total'] = 1800;
@@ -1323,15 +1336,16 @@ function statistical_analysis_computations($result,$db,$language_id) {
 	return $output;
 }
 function map() {
+	global $map_api;
 	$output = '
-    <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="//maps.googleapis.com/maps/api/js?key=' . $map_api . '" type="text/javascript"></script>
     <script src="js/markerwithlabel.js" type="text/javascript"></script>
     <script src="js/map.js" type="text/javascript"></script>
     <script type="text/javascript">window.onload = function (evt) { load(); };</script>
     <input type="text" id="addressInput" size="10" />
     <input type="button" onclick="search()" value="Search by English word"/>
     </div>
-    <div><select id="locationSelect" style="width:100%;visibility:hidden"></select></div>
+    <div><select id="locationSelect" style="width:80%;visibility:hidden"></select></div>
     <div id="map"></div>
 	';
 	return $output;

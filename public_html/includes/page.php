@@ -1,4 +1,5 @@
 <?php
+    $data['name'] = '';
     if ($type == 'semantic' && $id != 'all') {
         $data['name'] = select_single_value('domain',$id,'name',$db);
     }

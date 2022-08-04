@@ -278,7 +278,7 @@ a.skip-nav:hover, a.skip-nav:link:active, a.skip-nav:focus {
   width: 100%; }
 
 #map {
-  width: 100%;
+  width: 80%;
   height: 100%;
   position: absolute !important;
   margin-left: -50px;

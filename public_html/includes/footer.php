@@ -1,10 +1,4 @@
     <footer>
-        <?php 
-        if ($_SESSION['uid'] == '1') {
-            //ahah('wordcount_reset','630','10');
-            //ahah('words_in_texts','675','10');
-        }
-        ?>
         <div id="copyright">
             <a href="http://www.ched.gov.ph/"><img src="./img/ched-logo.png"/></a>
             <a href="http://www.pnu.edu.ph/3ns/"><img src="./img/3ns-logo.jpg"/></a>
