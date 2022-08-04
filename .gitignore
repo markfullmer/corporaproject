@@ -16,3 +16,5 @@ php.ini
 # Can also ignore all directories and files in a directory.
 variables/variables.php
 tmp/**/* 
+
+/vendor/

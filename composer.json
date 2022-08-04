@@ -1,0 +1,21 @@
+{
+    "name": "markfullmer/corporaproject",
+    "description": "Multilingual Filipino Corpus",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Markfullmer\\Corporaproject\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mark Fullmer",
+            "email": "mfullmer@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "rector/rector": "^0.13.10"
+    }
+}
