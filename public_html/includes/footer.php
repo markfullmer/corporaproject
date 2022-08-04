@@ -4,7 +4,7 @@
             <a href="http://www.pnu.edu.ph/3ns/"><img src="./img/3ns-logo.jpg"/></a>
             <a href="http://www.lnu.edu.ph/"><img src="./img/lnu-logo.jpg" /></a>
         <?php 
-        $meta = get_all('meta','1',$db); 
+        $meta = get_all('meta', '1', $db); 
         echo $meta['content']; 
         echo '<br /><a href="https://markfullmer.com">Mark Fullmer</a>';
         ?>

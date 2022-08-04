@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title><?php $meta = get_all('meta','2',$db); echo $meta['content']; ?></title>
+        <title><?php $meta = get_all('meta', '2', $db); echo $meta['content']; ?></title>
         <meta name="description" content="This is a database of various texts in 10 Filipino languages, created by Mark Fullmer.">
         <meta property="og:title" content="3NS Corpora Project">
         <meta property="og:image" content="https://corporaproject.org/img/website-flowchart.png">

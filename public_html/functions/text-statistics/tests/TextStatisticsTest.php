@@ -30,7 +30,8 @@ class TextStatisticsTest extends PHPUnit_Framework_TestCase
     /* Test Syllables
     -------------------- */
     public function testSyllableCountBasicWords()
-    { // "Normal" words
+    {
+        // "Normal" words
         $this->assertEquals(1, $this->TextStatistics->syllable_count('a'));
         $this->assertEquals(1, $this->TextStatistics->syllable_count('was'));
         $this->assertEquals(1, $this->TextStatistics->syllable_count('the'));
@@ -53,7 +54,8 @@ class TextStatisticsTest extends PHPUnit_Framework_TestCase
     }
 
     public function testSyllableCountComplexWords()
-    { // Odd syllables, long words, difficult sounds
+    {
+        // Odd syllables, long words, difficult sounds
         $this->assertEquals(12, $this->TextStatistics->syllable_count('antidisestablishmentarianism'));
         $this->assertEquals(14, $this->TextStatistics->syllable_count('supercalifragilisticexpialidocious'));
         $this->assertEquals(8, $this->TextStatistics->syllable_count('chlorofluorocarbonation'));

@@ -1,7 +1,7 @@
 <?php
 
 // Include the text statistics class
-require_once dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
+require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
 
 class TextStatisticsMelvilleMobyDick extends PHPUnit_Framework_TestCase
 {
@@ -63,7 +63,8 @@ class TextStatisticsMelvilleMobyDick extends PHPUnit_Framework_TestCase
     /* Test Syllables
     -------------------- */
     public function testMobyDickSyllables()
-    { // The Words from Moby Dick, in order
+    {
+        // The Words from Moby Dick, in order
         $this->assertEquals(1, $this->TextStatistics->syllable_count('Call'));
         $this->assertEquals(1, $this->TextStatistics->syllable_count('me'));
         $this->assertEquals(2, $this->TextStatistics->syllable_count('Ishmael'));
@@ -337,4 +338,4 @@ class TextStatisticsMelvilleMobyDick extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals(11.8, $this->TextStatistics->automated_readability_index($this->strText));
     }
-    }
+}

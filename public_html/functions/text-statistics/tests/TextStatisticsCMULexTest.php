@@ -10598,4 +10598,4 @@ class TextStatisticsTestCMULex extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $this->TextStatistics->syllable_count("zuhlke"));
         $this->assertEquals(4, $this->TextStatistics->syllable_count("zuidema"));
     }
-    }
+}

@@ -1,6 +1,6 @@
 <?php
 
-include('../variables.php');
+require '../variables.php';
 
 $sql = array();
 
@@ -146,13 +146,13 @@ $sql[] = "CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
 
 foreach ($sql as $table) {
-  try {
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-    $stmt = $db->prepare($table);
-    $stmt->execute();
-  }
-  catch(PDOException $e) {
-    echo $e->getMessage();
-  }
+    try {
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $stmt = $db->prepare($table);
+        $stmt->execute();
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
 }

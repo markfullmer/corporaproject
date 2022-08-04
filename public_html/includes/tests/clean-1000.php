@@ -5,26 +5,26 @@ $data = "nga, ngan, kun, para, ug,  pero, o, bisan, tungod, ngani, samtang, basi
 
 $set = explode(", ",$data);
 foreach ($set as $key => $word) {
-	$fixed = trim($word);
-	$beginning = strpos($fixed,'(');
-	$end = strpos($fixed,')');
-	if ($beginning !== false) {
-		$clean[$key]['alt'] = substr($word,$beginning+1,$end-$beginning-1);
-		$all[] = substr($word,$beginning+1,$end-$beginning-1);
-		$fixed = substr($word,0,$beginning);
-	}
-	$clean[$key]['word'] = $fixed;	
-	$all[] = $fixed;
+    $fixed = trim($word);
+    $beginning = strpos($fixed,'(');
+    $end = strpos($fixed,')');
+    if ($beginning !== false) {
+        $clean[$key]['alt'] = substr($word,$beginning+1,$end-$beginning-1);
+        $all[] = substr($word,$beginning+1,$end-$beginning-1);
+        $fixed = substr($word,0,$beginning);
+    }
+    $clean[$key]['word'] = $fixed;    
+    $all[] = $fixed;
 }
 
 foreach ($clean as $key => $values) {
-	if (isset($values['alt'])) {
-		$sql = 'UPDATE word SET standard_spelling=:standard_spelling WHERE name = :name AND language = :language';
-		$q = $db->prepare($sql);
-		$q->execute(array(':standard_spelling'=>$values['alt'],':name'=>$values['word'],':language'=>'24'));
-		$q->execute(array(':standard_spelling'=>$values['word'],':name'=>$values['alt'],':language'=>'24'));
-		echo 'updated '.$values['word'].' to '.$values['alt'].'<br />';
-	}
+    if (isset($values['alt'])) {
+        $sql = 'UPDATE word SET standard_spelling=:standard_spelling WHERE name = :name AND language = :language';
+        $q = $db->prepare($sql);
+        $q->execute(array(':standard_spelling'=>$values['alt'],':name'=>$values['word'],':language'=>'24'));
+        $q->execute(array(':standard_spelling'=>$values['word'],':name'=>$values['alt'],':language'=>'24'));
+        echo 'updated '.$values['word'].' to '.$values['alt'].'<br />';
+    }
 }
 $language = '24';
 $frequent_manual = serialize($all);

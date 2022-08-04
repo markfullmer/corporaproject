@@ -1,7 +1,7 @@
 <?php
 
 // Include the text statistics class
-require_once dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
+require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
 
 class TextStatisticsKiplingIf extends PHPUnit_Framework_TestCase
 {
@@ -97,7 +97,8 @@ class TextStatisticsKiplingIf extends PHPUnit_Framework_TestCase
     /* Test Syllables
     -------------------- */
     public function testKiplingSyllables()
-    { // The Words from If, in order
+    {
+        // The Words from If, in order
         $this->assertEquals($this->TextStatistics->syllable_count('If'), 1);
         $this->assertEquals($this->TextStatistics->syllable_count('you'), 1);
         $this->assertEquals($this->TextStatistics->syllable_count('can'), 1);

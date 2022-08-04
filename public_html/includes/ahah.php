@@ -1,5 +1,5 @@
 <?php
-include('./../functions/functions.php');
-include('./../../variables.php');
-echo select_single_value('progress','1','text_updater',$db);
+require './../functions/functions.php';
+require './../../variables.php';
+echo select_single_value('progress', '1', 'text_updater', $db);
 ?>

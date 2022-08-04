@@ -10,10 +10,10 @@ $texts = get_name('all','text',$db);
 
 $inc = 1;
 while ($inc < 520)  {
-	$row = get_all('text',$inc,$db);
-	process_text($row['id'],$db,'text',$row['name'],$row['content'],$row['language'],$row['author'],$row['year'],$row['genre'],'Update');
-	$inc++;
-	echo 'Updated '.$row['name'].'<br />';
+    $row = get_all('text',$inc,$db);
+    process_text($row['id'],$db,'text',$row['name'],$row['content'],$row['language'],$row['author'],$row['year'],$row['genre'],'Update');
+    $inc++;
+    echo 'Updated '.$row['name'].'<br />';
 }
 */
 
