@@ -1,7 +1,7 @@
 <?php
 
 // Include the text statistics class
-require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
+require_once dirname(__FILE__, 2) . DIRECTORY_SEPARATOR . 'TextStatistics.php';
 
 class TextStatisticsKiplingIf extends PHPUnit_Framework_TestCase
 {

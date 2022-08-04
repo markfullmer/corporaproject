@@ -10,7 +10,7 @@ echo 'helper script';
 if ($_GET['type'] == 'wordcount_reset') {
     $sql = 'UPDATE word SET count =""';
     $statement = $db->prepare($sql);
-    $statement->execute(array());
+    $statement->execute([]);
 }
 
 $total = $_GET['total'];
@@ -21,11 +21,11 @@ else {
     $limit = '10';
 }
 $offset = '0';
-$values = array();
+$values = [];
 $done = false;
 // Prepare the task runner
 if ($_GET['type'] == 'Export all words') {
-    $header = array("Word","Count","Part(s) of Speech","Meaning","Sample Sentence");
+    $header = ["Word", "Count", "Part(s) of Speech", "Meaning", "Sample Sentence"];
     $fp = fopen('export.xls', 'w');
     fputcsv($fp, $header);
     fclose($fp);
@@ -33,13 +33,13 @@ if ($_GET['type'] == 'Export all words') {
 if ($_GET['type'] == 'uncategorized_words') {
     $sql = 'DELETE FROM word WHERE language = 0';
     $q = $db->prepare($sql);
-    $q->execute(array());
+    $q->execute([]);
     $offset = 1;
 }
 if ($_GET['type'] == 'sentence') {
     $sql = 'DELETE FROM sentences';
     $q = $db->prepare($sql);
-    $q->execute(array());
+    $q->execute([]);
 }
 if ($_GET['type'] == 'readability') {
     $language = $_GET['language'];
@@ -60,7 +60,7 @@ while (!$done) {
     // Update the progress table
     $sql = 'UPDATE progress SET text_updater = :offset WHERE id = :id';
     $q = $db->prepare($sql);
-    $q->execute(array(':offset' => $progress,':id' => '1'));
+    $q->execute([':offset' => $progress, ':id' => '1']);
     $values['limit'] = $limit;
     $values['offset'] = $offset;
     // Execute the task
@@ -74,12 +74,13 @@ while (!$done) {
 
 function task($values)
 {
+    $readability = [];
     global $db;
     if ($_GET['type'] == 'Export all words') {
         $result = select_frequent_words($_GET['language'], $values['offset'], $values['limit'], 'count', 'no', 'no', $db);
         $pos = get_name('all', 'pos', $db);
         foreach ($result as $key => $value) {
-            $pos_array = array();
+            $pos_array = [];
             if ($value['pos'] != 0) {
                 $one = $value['pos'];
                 $pos_array[] = $pos[$one]['name'];
@@ -106,7 +107,7 @@ function task($values)
         // Get the data
         $sql = 'SELECT id,name,content,language,author,year,genre FROM text LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
         $statement = $db->prepare($sql);
-        $statement->execute(array());
+        $statement->execute([]);
         // Perform the action
         while ($row = $statement->fetch()) {
             process_text($row['id'], $db, 'text', $row['name'], $row['content'], $row['language'], $row['author'], $row['year'], $row['genre'], 'Update');
@@ -115,15 +116,15 @@ function task($values)
     if ($_GET['type'] == 'sentence') {
         $sql = "SELECT id,content,genre,language FROM text LIMIT ".$values['limit']." OFFSET ".$values['offset'];
         $statement = $db->prepare($sql);
-        $statement->execute(array());
+        $statement->execute([]);
         while ($row = $statement->fetch()) {
             $clean = clean_sentence($row['content'], $row['genre'], $db);
-            $sentence_array = explode('.', $clean);
+            $sentence_array = explode('.', (string) $clean);
             foreach ($sentence_array as $sentence) {
                 if (strlen($sentence) > 50) {
                     $sql = 'INSERT INTO sentences (content,language,text) VALUES (:content,:language,:text)';
                     $q = $db->prepare($sql);
-                    $q->execute(array(':content'=>$sentence,':language'=>$row['language'],':text'=>$row['id']));
+                    $q->execute([':content'=>$sentence, ':language'=>$row['language'], ':text'=>$row['id']]);
                 }
             }
         }
@@ -131,18 +132,18 @@ function task($values)
     if ($_GET['type'] == 'wordcount_reset') {
         $sql = 'SELECT id,word_list,language FROM text LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
         $statement = $db->prepare($sql);
-        $statement->execute(array());
+        $statement->execute([]);
         // Perform the action
         while ($row = $statement->fetch()) {
             // Update Existing Words
-            $existing = array();
+            $existing = [];
             $word_list = unserialize($row['word_list']);
             $words = array_keys($word_list);
             $names = implode("','", $words);
             $comma_separated = "'".$names."'";
             $sql = 'SELECT name,count FROM word WHERE name IN ('.$comma_separated.') AND language = :language';
             $q = $db->prepare($sql);
-            $q->execute(array(':language'=>$row['language']));
+            $q->execute([':language'=>$row['language']]);
             while ($vals = $q->fetch()) {
                 $id = $vals['name'];
                 $existing[$id] = $vals['count'];
@@ -167,7 +168,7 @@ function task($values)
         $total = 0;
         $sql = 'SELECT id,word_list,words_per_sentence FROM text WHERE language ='.$_GET['language'].' LIMIT '.$values['limit'].' OFFSET '.$values['offset'];
         $statement = $db->prepare($sql);
-        $statement->execute(array());
+        $statement->execute([]);
 
         // do the math
         while ($row = $statement->fetch()) {

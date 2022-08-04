@@ -2,7 +2,7 @@
 
 require '../variables.php';
 
-$sql = array();
+$sql = [];
 
 $sql[] = "CREATE TABLE IF NOT EXISTS `word` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

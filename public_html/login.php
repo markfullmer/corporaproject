@@ -5,10 +5,10 @@ if (isset($_GET['logout'])) {
     header('Location: ./index.php');
 }
 if (isset($_POST['email'])) {
-    $pass = hash('ripemd160', $_POST['pass']);
+    $pass = hash('ripemd160', (string) $_POST['pass']);
     $email = $_POST['email'];
     $statement = $db->prepare("SELECT * FROM user WHERE email = :email AND password = :pass");
-    $statement->execute(array(':email' => $email,':pass' => $pass));
+    $statement->execute([':email' => $email, ':pass' => $pass]);
     $row = $statement->fetch();
     if (isset($row['id'])) { 
         $_SESSION['uid'] = $row['id'];

@@ -7,23 +7,23 @@ if (isset($_REQUEST['submit'])) {
     }
     if (isset($_REQUEST['id'])) { $id = $_REQUEST['id']; 
     }
-    if ($type == 'user') { check_permissions($permission = array(1)); 
+    if ($type == 'user') { check_permissions($permission = [1]); 
     }
-    if ($type == 'language') { check_permissions($permission = array(2)); 
+    if ($type == 'language') { check_permissions($permission = [2]); 
     }
-    if ($type == 'text') { check_permissions($permission = array(4)); 
+    if ($type == 'text') { check_permissions($permission = [4]); 
     }
-    if ($type == 'word') { check_permissions($permission = array(5)); 
+    if ($type == 'word') { check_permissions($permission = [5]); 
     }
-    if ($type == 'pos') { check_permissions($permission = array(6)); 
+    if ($type == 'pos') { check_permissions($permission = [6]); 
     }
-    if ($type == 'article') { check_permissions($permission = array(7)); 
+    if ($type == 'article') { check_permissions($permission = [7]); 
     }
-    if ($type == 'meta') { check_permissions($permission = array(8,9,10));  
+    if ($type == 'meta') { check_permissions($permission = [8, 9, 10]);  
     }
-    if ($type == 'genre') { check_permissions($permission = array(11)); 
+    if ($type == 'genre') { check_permissions($permission = [11]); 
     }
-    if ($type == 'domain') { check_permissions($permission = array(12)); 
+    if ($type == 'domain') { check_permissions($permission = [12]); 
     }
     if ($type == 'meta' && $id == 'add') { die('You cannot do this.'); 
     } 
@@ -31,13 +31,13 @@ if (isset($_REQUEST['submit'])) {
     }
     if (isset($_REQUEST['word'])) { $word = $_REQUEST['word']; 
     }
-    if (isset($_REQUEST['name'])) { $name = ucwords(strtolower($_REQUEST['name'])); 
+    if (isset($_REQUEST['name'])) { $name = ucwords(strtolower((string) $_REQUEST['name'])); 
     }
     if (isset($_REQUEST['email'])) { $email = $_REQUEST['email']; 
     }
     if (isset($_REQUEST['language'])) { $language = $_REQUEST['language']; 
     }
-    if (isset($_REQUEST['author'])) { $author = ucwords(strtolower($_REQUEST['author'])); 
+    if (isset($_REQUEST['author'])) { $author = ucwords(strtolower((string) $_REQUEST['author'])); 
     }
     if (isset($_REQUEST['year'])) { $year = $_REQUEST['year']; 
     }
@@ -83,13 +83,13 @@ if (isset($_REQUEST['submit'])) {
     }
     else { $blacklist = 0; 
     }
-    if ($_REQUEST['submit'] == 'delete' && (!in_array($type, array('text','meta')))) {
+    if ($_REQUEST['submit'] == 'delete' && (!in_array($type, ['text', 'meta']))) {
         delete_basic($type, $id, $db);
     }
-    if ($_REQUEST['submit'] == 'Add' && (in_array($type, array('language','genre','pos','domain')))) {
+    if ($_REQUEST['submit'] == 'Add' && (in_array($type, ['language', 'genre', 'pos', 'domain']))) {
         insert_basic($type, $content, $db);
     }
-    if ($_REQUEST['submit'] == 'Update' && (in_array($type, array('language','genre','pos','domain')))) {
+    if ($_REQUEST['submit'] == 'Update' && (in_array($type, ['language', 'genre', 'pos', 'domain']))) {
         update_basic($type, $id, $content, $db);
         if ($type == 'language') { 
             update_language($id, $frequent_word_value, $sentences_constant, $words_constant, $db);
@@ -119,12 +119,12 @@ if (isset($_REQUEST['submit'])) {
             $frequent_manual = serialize($frequent);
             $sql = 'UPDATE language SET frequent_manual = :frequent_manual WHERE id = :id';
             $q = $db->prepare($sql);
-            $q->execute(array(':frequent_manual'=>$frequent_manual,':id' => $language));
+            $q->execute([':frequent_manual'=>$frequent_manual, ':id' => $language]);
             header('Location: ./edit.php?type=language&id='.$language.'#frequent_manual');
             exit();
         }
         if ($_REQUEST['submit'] == 'Add') {
-            $frequent = array();
+            $frequent = [];
             $language = select_single_value('text', $referrer, 'language', $db);
             $frequent_manual = select_single_value('language', $language, 'frequent_manual', $db);
             $frequent = unserialize($frequent_manual);
@@ -134,7 +134,7 @@ if (isset($_REQUEST['submit'])) {
             $frequent_manual = serialize($frequent);
             $sql = 'UPDATE language SET frequent_manual = :frequent_manual WHERE id = :id';
             $q = $db->prepare($sql);
-            $q->execute(array(':frequent_manual'=>$frequent_manual,':id' => $language));
+            $q->execute([':frequent_manual'=>$frequent_manual, ':id' => $language]);
             header('Location: ./index.php?type=text&id='.$referrer.'&frequent_mod=1');
             exit();
         }
@@ -150,12 +150,12 @@ if (isset($_REQUEST['submit'])) {
     if ($type == 'meta') { 
         $sql = 'UPDATE meta SET content = :content WHERE id = :id';
         $q = $db->prepare($sql);
-        $q->execute(array(':content'=>$title,':id' => '2'));
-        $q->execute(array(':content'=>$footer,':id' => '1'));
-        $q->execute(array(':content'=>$sidebar,':id' => '3'));
-        $q->execute(array(':content'=>$words_to_display,':id' => '6'));
-        $q->execute(array(':content'=>$texts_to_display,':id' => '7'));
-        $q->execute(array(':content'=>$search_results,':id' => '8'));
+        $q->execute([':content'=>$title, ':id' => '2']);
+        $q->execute([':content'=>$footer, ':id' => '1']);
+        $q->execute([':content'=>$sidebar, ':id' => '3']);
+        $q->execute([':content'=>$words_to_display, ':id' => '6']);
+        $q->execute([':content'=>$texts_to_display, ':id' => '7']);
+        $q->execute([':content'=>$search_results, ':id' => '8']);
         header('Location: ./index.php');
         exit();
     }
@@ -168,14 +168,14 @@ if (isset($_REQUEST['submit'])) {
             foreach ($word_array_mod as $key => $value) {
                   $neg_word_array_mod[$key] = $value*-1;
             }
-            $sentence_array = array();
+            $sentence_array = [];
             process_words($neg_word_array_mod, $sentence_array, $language, $db);
             update_total_words($word_count, $language, $db);
             update_distinct_words($language, $db);
             header('Location: ./edit.php?type='.$type.'&id=all');
             exit();
         }
-        if (str_word_count($content) > '100000') { header('Location: ./edit.php?type=text&id=add&message=1'); 
+        if (str_word_count((string) $content) > '100000') { header('Location: ./edit.php?type=text&id=add&message=1'); 
         }
         else { 
             process_text($id, $db, $type, $name, $content, $language, $author, $year, $genre, $_REQUEST['submit']);
@@ -184,29 +184,29 @@ if (isset($_REQUEST['submit'])) {
         }
     }
     if ($type == 'user') {
-        check_permissions($permission = array(1));
+        check_permissions($permission = [1]);
         $perms = serialize($_POST['permission']);
         if ($_POST['password'] == '') { $password = ''; 
         }
-        else { $password = hash('ripemd160', $_POST['password']); 
+        else { $password = hash('ripemd160', (string) $_POST['password']); 
         }
         if ($id == 'add') {
             $sql = "INSERT INTO user (name,email,password,access) VALUES (:name,:email,:password,:access)";
             $q = $db->prepare($sql);
-            $q->execute(array(':name'=>$name,':email'=>$_POST['email'],':password'=>$password,':access'=>$perms));
+            $q->execute([':name'=>$name, ':email'=>$_POST['email'], ':password'=>$password, ':access'=>$perms]);
         }
         else {
             if ($password != '') {
                 $sql = 'UPDATE '.$type.' SET password = :password WHERE id = :id';
                 $q = $db->prepare($sql);
-                $q->execute(array(':password'=>$password,':id' => $id));
+                $q->execute([':password'=>$password, ':id' => $id]);
             }
             $sql = 'UPDATE '.$type.' SET name = :name, email = :email, access = :access WHERE id = :id';
             $q = $db->prepare($sql);
-            $q->execute(array(':name'=>$name,':email'=>$_POST['email'],':id' => $id,':access' => $perms));
+            $q->execute([':name'=>$name, ':email'=>$_POST['email'], ':id' => $id, ':access' => $perms]);
         }
         $statement = $db->prepare("SELECT access FROM user WHERE id = :id");
-        $statement->execute(array(':id'=>$id));
+        $statement->execute([':id'=>$id]);
         $row = $statement->fetch();
         if (isset($row['access'])) { 
             $p = unserialize($row['access']);
@@ -216,16 +216,16 @@ if (isset($_REQUEST['submit'])) {
         exit();
     }
     if ($type == 'word') {
-        $word = strtolower($content);
+        $word = strtolower((string) $content);
         if ($id == 'add') {
             $sql = "INSERT INTO word (name,language,definition,pos,postwo,sample_sentence,english_equivalent,domain,englishword,blacklist,standard_spelling) VALUES (:name,:language,:definition,:pos,:postwo,:sample_sentence,:english_equivalent,:domain,:englishword,:blacklist,:standard_spelling)";
             $q = $db->prepare($sql);
-            $q->execute(array(':name'=>$word,':language'=>$language,':definition'=>$definition,':pos'=>$pos,':postwo'=>$postwo,':sample_sentence'=>$sample_sentence,':english_equivalent'=>$english_equivalent,':domain'=>$domain,':englishword'=>$englishword,':blacklist'=>$blacklist,':standard_spelling'=>$standard_spelling));
+            $q->execute([':name'=>$word, ':language'=>$language, ':definition'=>$definition, ':pos'=>$pos, ':postwo'=>$postwo, ':sample_sentence'=>$sample_sentence, ':english_equivalent'=>$english_equivalent, ':domain'=>$domain, ':englishword'=>$englishword, ':blacklist'=>$blacklist, ':standard_spelling'=>$standard_spelling]);
         }
         else {
             $sql = 'UPDATE word SET name = :name, language = :language, definition = :definition,pos = :pos,postwo = :postwo,sample_sentence = :sample_sentence,english_equivalent = :english_equivalent,domain = :domain,englishword = :englishword,blacklist = :blacklist,standard_spelling=:standard_spelling WHERE id = :id';
             $q = $db->prepare($sql);
-            $q->execute(array(':name'=>$word,':language'=>$language,':definition'=>$definition,':pos'=>$pos,':postwo'=>$postwo,':sample_sentence'=>$sample_sentence,':english_equivalent'=>$english_equivalent,':domain'=>$domain,':englishword'=>$englishword,':blacklist'=>$blacklist,':standard_spelling'=>$standard_spelling,':id'=>$id));
+            $q->execute([':name'=>$word, ':language'=>$language, ':definition'=>$definition, ':pos'=>$pos, ':postwo'=>$postwo, ':sample_sentence'=>$sample_sentence, ':english_equivalent'=>$english_equivalent, ':domain'=>$domain, ':englishword'=>$englishword, ':blacklist'=>$blacklist, ':standard_spelling'=>$standard_spelling, ':id'=>$id]);
         }
         header('Location: ./index.php?type=word&id=all&$language='.$language);
         exit();

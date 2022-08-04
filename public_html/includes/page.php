@@ -13,7 +13,7 @@ if ($type == 'map') { $data['name'] = 'Map'; $id='all';
 }
 if ($type == 'languagesimilarity') { $data['name'] = 'LanguageSimilarity'; $id='all'; 
 }
-    $name = strtolower($data['name']);
+    $name = strtolower((string) $data['name']);
     $name = ucwords($name);
 if ($type == 'text' && $id != 'all') {
     if (isset($_SESSION['permissions'])) {
@@ -41,7 +41,7 @@ echo '>';
         <header>
         <h2 id="main-content"><?php echo $name; ?>
         </h2>
-        <?php if (isset($data['author'])) { $author = strtolower($data['author']); $author = ucwords($author); $author = $author; echo '<p>By '.$author.'<p>'; 
+        <?php if (isset($data['author'])) { $author = strtolower((string) $data['author']); $author = ucwords($author); $author = $author; echo '<p>By '.$author.'<p>'; 
         } ?>
         <?php if (isset($data['year'])) { echo '<p>Published: '.$data['year'].'<p>'; 
         } ?>
@@ -77,7 +77,7 @@ if ($id == 'all') {
         readability_form($db);
     }
     if ($type == 'word') {
-        if (check_permissions($permission = array(3))) {
+        if (check_permissions($permission = [3])) {
             echo word_list_controller($db);
         }
     }
@@ -102,7 +102,7 @@ if ($id == 'all') {
             $l_join = join(',', $l_keys);
             $sql = 'SELECT id FROM text WHERE language IN ("'.$l_join.'")';
             $result = $db->query($sql)->fetchAll();
-            $total_texts =  count($result);
+            $total_texts =  is_countable($result) ? count($result) : 0;
         }
         else { $total_texts = count_values('text', 'language', $language, $db); 
         }
@@ -168,9 +168,9 @@ if ($id == 'all') {
                     }
                     else { $genre = 'Uncategorized'; 
                     }
-                    $author = strtolower($value['author']);
+                    $author = strtolower((string) $value['author']);
                     $author = ucwords($author);
-                    $title = strtolower($key);
+                    $title = strtolower((string) $key);
                     $title = ucwords($title);
                     echo '<tr><td><a href="./index.php?type=text&id='.$value['id'].'">'.$title.'</a>';
                     if (isset($_SESSION['permissions'])) {
@@ -226,7 +226,7 @@ if (isset($data['content'])) {
     else {
         if ($type == 'text') { echo '<a href="?type=text&id='.$data['id'].'&frequent_mod=1">Manually tag words in this document as frequent</a><br />'; 
         }
-        echo nl2br($content);
+        echo nl2br((string) $content);
     }
 }
 ?>
@@ -263,7 +263,7 @@ if ($id != 'all' && $type != 'semantic') {
         if ($word_search != '') { search($word_search, $language, $db); 
         }
         echo '</div>';
-        $meta = get_all('meta', '3', $db); echo nl2br($meta['content']);
+        $meta = get_all('meta', '3', $db); echo nl2br((string) $meta['content']);
         view_totals($db);
     }
     echo '</aside>';
