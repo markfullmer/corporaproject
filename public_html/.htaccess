@@ -1,3 +1,5 @@
+deny from 185.225.74.102
+
 # Apache Configuration File
 
 # (!) Using `.htaccess` files slows down Apache, therefore, if you have access
